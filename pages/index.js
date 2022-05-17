@@ -1,47 +1,39 @@
-import Head from "next/head";
-import { useState } from "react";
-import styles from "./index.module.css";
+import { Container, Divider, TextField, Grid, Button, Box } from "@mui/material";
+import { useState } from 'react';
+import Paragraph from './../components/Paragraph';
 
-export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
-  const [result, setResult] = useState();
+export default function Index(props) {
+    const [state, setstate] = useState('input')
+    const [text, settext] = useState("")
 
-  async function onSubmit(event) {
-    event.preventDefault();
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ animal: animalInput }),
-    });
-    const data = await response.json();
-    setResult(data.result);
-    setAnimalInput("");
-  }
 
-  return (
-    <div>
-      <Head>
-        <title>OpenAI Quickstart</title>
-        <link rel="icon" href="/dog.png" />
-      </Head>
 
-      <main className={styles.main}>
-        <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
-        <form onSubmit={onSubmit}>
-          <input
-            type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
-          />
-          <input type="submit" value="Generate names" />
-        </form>
-        <div className={styles.result}>{result}</div>
-      </main>
-    </div>
-  );
+    const applyText = () => {
+        settext(text.split(/(?<=\n|\r)/).filter(txt=>txt.length>1))
+        setstate('read')
+    }
+
+
+    if (state == 'input') {
+        return (
+            <>
+                <TextField id="outlined-basic" label="text" variant="outlined" multiline fullWidth onChange={(e) => settext(e.target.value)} minRows={30} />
+                <Button variant="outlined" onClick={applyText}>Apply</Button>
+            </>
+        )
+    }
+
+    if (state == 'read') {
+        return (
+            <>
+                {text.map((txt,i)=>( 
+                    <Box sx={{p:2}} key={i}>
+                        <Paragraph text={txt} key={i}/> 
+                    </Box>
+                ))}
+            </>
+        )
+    }
 }
+
+
