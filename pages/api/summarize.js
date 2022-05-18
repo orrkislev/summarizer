@@ -7,12 +7,12 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 export default async function (req, res) {
-    const prompt = `${req.body.text} \n \n TL:DR \n`
+    const prompt = `summarize this text: \n \n "${req.body.text}"`
 
     const completion = await openai.createCompletion("text-davinci-002", {
         prompt: prompt,
         temperature: 0.6,
-        max_tokens: Math.round(req.body.text.length*1.33 * 0.5),
+        max_tokens: Math.round(req.body.text.split(' ').length*1.33 * 0.5),
     });
 
     console.log(completion)
