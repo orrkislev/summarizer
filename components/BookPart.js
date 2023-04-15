@@ -20,10 +20,14 @@ const ContentContainer = styled.div`
     transition: all 0.2s ease-in-out;
     ${props => props.active ? 'margin-left: 0' : 'margin-left: -5em'};
 `
+
+// buttons should be sticky when scrolling
 const ButtonsContainer = styled.div`
     width: 5em;
-    display: flex;
 `
+const ButtonsContainerInner = styled.div`
+`
+
 
 
 export default function BookPart({ bookPart }) {
@@ -35,7 +39,7 @@ export default function BookPart({ bookPart }) {
     const getSummary = async () => {
         if (summary !== "") {
             setShowSummary(!showSummary)
-            return 
+            return
         }
         setSummary('...')
         const res = await fetch('/api/summarize', {
@@ -58,12 +62,14 @@ export default function BookPart({ bookPart }) {
     return (
         <PartContainer>
             <ButtonsContainer>
-                <SideButton onClick={getSummary} src="gpt.svg" />
-                <SideButton onClick={hide} src="hide.svg" />
+                <ButtonsContainerInner>
+                    <SideButton onClick={getSummary} src="gpt.svg" />
+                    <SideButton onClick={hide} src="hide.svg" />
+                </ButtonsContainerInner>
             </ButtonsContainer>
             <ContentContainer active={active} onClick={() => setActive(!active)}>
                 {(!summary || !showSummary) && <div dangerouslySetInnerHTML={{ __html: bookPart.html }} />}
-                {summary && showSummary && <div style={{ background: 'lightgreen'}}>{summary}</div>}
+                {summary && showSummary && <div style={{ background: 'lightgreen' }}>{summary}</div>}
             </ContentContainer>
         </PartContainer>
     )
