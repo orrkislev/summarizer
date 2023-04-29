@@ -5,16 +5,14 @@ import BookPart from '@/components/BookPart'
 import BookSection from '@/components/BookSection'
 
 export default function Home() {
+  const [file, setFile] = useState(null)
   const [sections, setSections] = useState([])
 
-  useEffect(() => {
-    loadBook()
-  }, [])
+  const loadFile = async (e) => {
+    setFile(e.target.files[0])
 
-  const filename = 'files/book2.epub'
-  const loadBook = async () => {
-
-    const zip = await JSZip.loadAsync(await fetch(filename).then(res => res.arrayBuffer()))
+    const arrayBuffer = await new Response(e.target.files[0]).arrayBuffer()
+    const zip = await JSZip.loadAsync(arrayBuffer)
     let keys = Object.keys(zip.files).sort().filter(key => key.includes('htm'))
 
     const newSections = []
@@ -43,6 +41,19 @@ export default function Home() {
 
     setSections(newSections)
   }
+
+  if (!file) {
+    // button to upload file
+    return (
+      <div style={{ width: '55em', margin: '0 auto', padding: '1em' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
+          <input type="file" onChange={loadFile} />
+        </div>
+      </div >
+    )
+  }
+
+  if (!sections) return null
 
   return (
     <div style={{ width: '55em', margin: '0 auto', padding: '1em' }}>

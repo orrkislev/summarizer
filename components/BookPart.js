@@ -16,9 +16,7 @@ const ContentContainer = styled.div`
     background: #fff;
     width: 100%;
     padding-bottom: 1em;
-    border-bottom: 1px dashed #ccc;
     transition: all 0.2s ease-in-out;
-    ${props => props.active ? 'margin-left: 0' : 'margin-left: -5em'};
 `
 
 // buttons should be sticky when scrolling
@@ -32,7 +30,6 @@ const ButtonsContainerInner = styled.div`
 
 export default function BookPart({ bookPart }) {
     const [summary, setSummary] = useState("")
-    const [isHidden, setIsHidden] = useState(false)
     const [active, setActive] = useState(false)
     const [showSummary, setShowSummary] = useState(true)
 
@@ -53,21 +50,14 @@ export default function BookPart({ bookPart }) {
         setSummary(text)
     }
 
-    const hide = () => {
-        setIsHidden(true)
-    }
-
-    if (isHidden) return null
-
     return (
         <PartContainer>
-            <ButtonsContainer>
+            <ButtonsContainer active={active}>
                 <ButtonsContainerInner>
                     <SideButton onClick={getSummary} src="gpt.svg" />
-                    <SideButton onClick={hide} src="hide.svg" />
                 </ButtonsContainerInner>
             </ButtonsContainer>
-            <ContentContainer active={active} onClick={() => setActive(!active)}>
+            <ContentContainer onClick={() => setActive(!active)}>
                 {(!summary || !showSummary) && <div dangerouslySetInnerHTML={{ __html: bookPart.html }} />}
                 {summary && showSummary && <div style={{ background: 'lightgreen' }}>{summary}</div>}
             </ContentContainer>
