@@ -28,7 +28,7 @@ const ButtonsContainerInner = styled.div`
 
 
 
-export default function BookPart({ bookPart }) {
+export default function BookPart(props) {
     const [summary, setSummary] = useState("")
     const [active, setActive] = useState(false)
     const [showSummary, setShowSummary] = useState(true)
@@ -44,7 +44,7 @@ export default function BookPart({ bookPart }) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text: bookPart.content })
+            body: JSON.stringify({ text: props.bookPart.content, prev: props.prev?.content, next: props.next?.content })
         })
         const { text } = await res.json()
         setSummary(text)
@@ -58,7 +58,7 @@ export default function BookPart({ bookPart }) {
                 </ButtonsContainerInner>
             </ButtonsContainer>
             <ContentContainer onClick={() => setActive(!active)}>
-                {(!summary || !showSummary) && <div dangerouslySetInnerHTML={{ __html: bookPart.html }} />}
+                {(!summary || !showSummary) && <div dangerouslySetInnerHTML={{ __html: props.bookPart.html }} />}
                 {summary && showSummary && <div style={{ background: 'lightgreen' }}>{summary}</div>}
             </ContentContainer>
         </PartContainer>

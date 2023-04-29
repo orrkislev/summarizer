@@ -14,7 +14,7 @@ export default function BookSection(props) {
         <div style={{ display: 'flex' }}>
             <SectionContainer>
                 {props.section.map((part, i) =>
-                    <BookPart key={i} bookPart={part} />
+                    <BookPart key={i} bookPart={part} prev={i>0 ? props.section[i-1] : null} next={i<props.section.length-1 ? props.section[i+1] : null} />
                 )}
             </SectionContainer>
         </div>

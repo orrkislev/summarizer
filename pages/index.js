@@ -59,8 +59,8 @@ export default function Home() {
     <div style={{ width: '55em', margin: '0 auto', padding: '1em' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
         {sections.map((section, i) =>
-          <BookSection key={i} section={section} />)
-        }
+          <BookSection key={i} section={section} />
+        )}
       </div>
     </div >
   )
