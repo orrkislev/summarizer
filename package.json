@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "epubjs": "^0.3.93",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "jszip": "^3.10.1",
