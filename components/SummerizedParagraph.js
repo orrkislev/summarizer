@@ -3,7 +3,7 @@ import styled from "styled-components"
 
 const SummaryContainer = styled.div`
     position: absolute;
-    background: #ffffffcc;
+    background: #ffffffdd;
     backdrop-filter: blur(1px);
     font-family: 'Roboto', sans-serif;
     line-height: 1.5em;
@@ -13,14 +13,13 @@ const SummaryContainer = styled.div`
 const SideText = styled.div`
     position: absolute;
     top: 0;
-    right: 0;
+    right: -4em;
     transform: translate(100%, 0);
-    height: 100%;
-    writing-mode: vertical-rl;
     font-size: 0.8em;
     font-style: italic;
     color: cornflowerblue;
     white-space: nowrap;
+    line-height: 1em;
     `
 
 
@@ -58,7 +57,7 @@ export default function SummerizedParagraphs(props) {
         lineHeight: lineHeight + 'px'
     }
 
-    setTimeout(() => {
+    useEffect(()=>{
         if (ref.current) {
             const height = ref.current.offsetHeight
             if (Math.abs(height - element.offsetHeight) < 10) return
@@ -69,14 +68,14 @@ export default function SummerizedParagraphs(props) {
                 setLineHeight(targetLineHeight)
             }
         }
-    }, 300)
+    })
 
     if (!props.visible) return null
 
     return (
         <SummaryContainer style={style} onMouseEnter={props.onMouseEnter}>
-            {/* <div style={{ padding: '1em' }}  dangerouslySetInnerHTML={{ __html: summary }} /> */}
-            <div style={{ padding: '8px' }} ref={ref}> {summary} </div>
+            <div style={{ padding: '1em' }} ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
+            {/* <div style={{ padding: '8px' }} ref={ref}> {summary} </div> */}
             <SideText> {sideText} </SideText>
         </SummaryContainer>
     )

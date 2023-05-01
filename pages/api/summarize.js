@@ -25,8 +25,8 @@ export default async function handler(req, res) {
         ]
     });
 
-    const answer = response.data.choices[0].message.content
-    console.log(answer)
+    let answer = response.data.choices[0].message.content
+    answer = answer.replace('Gist:', 'gist:').replace('Summary:', 'summary:')
     const summary = answer.split('summary:')[1].split('gist:')[0]
     const gist = answer.split('gist:')[1]
     res.status(200).json({ text: summary, gist })
