@@ -6,23 +6,28 @@ export default async function handler(req, res) {
     });
     const openai = new OpenAIApi(configuration);
 
-    const origText = req.body.text
-    const targetWords = Math.round(origText.split(' ').length / 3)
+    const targetWords = Math.round(req.body.text.split(' ').length / 3)
 
     // let prompt = `summarize this paragraph in up to ${targetWords} words and Don't use 'this text' in the opening.`
     // prompt += `Use this context to summarize it: the paragraph which immediately precedes it reads: "${prev}". `
     // prompt += `The paragraph which immediately follows it reads: "${next}". the text to summarize is: "${origText}"`
 
-    // use chatGPT to generate a response, use ChatCompletion
+    // let prompt = `summarize this paragraph in up to ${targetWords}: /n/n "${origText}" /n/n summary:`
+
+
     const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": `write a summary of this text, in up to ${targetWords} words. Don't use 'this text' in the opening :` + origText },
+            { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags to emphasize text - please use tags in the summary too. give me only the summary and nothing else." },
+            { "role": "user", "content": "format your answer like this: summary:(summary), gist: (maximum 3 words)" },
+            { "role": "user", "content": `Summarize this in up to ${targetWords} words:` + req.body.html },
         ]
     });
 
-
-    const text = response.data.choices[0].message.content
-    res.status(200).json({ text })
+    const answer = response.data.choices[0].message.content
+    console.log(answer)
+    const summary = answer.split('summary:')[1].split('gist:')[0]
+    const gist = answer.split('gist:')[1]
+    res.status(200).json({ text: summary, gist })
 }
