@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         model: "gpt-3.5-turbo",
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags to emphasize text - please use tags in the summary too. give me only the summary and nothing else." },
+            { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags - please use the respected tags in the summary too. give me only the summary and nothing else." },
             { "role": "user", "content": "format your answer like this: summary:(summary), gist: (maximum 3 words)" },
             { "role": "user", "content": `Summarize this in up to ${targetWords} words:` + req.body.html },
         ]

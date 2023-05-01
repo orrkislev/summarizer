@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
+
 import dynamic from 'next/dynamic'
 const NewReader = dynamic(() => import('../components/NewReader'), { ssr: false, })
 

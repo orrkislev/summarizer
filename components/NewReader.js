@@ -8,8 +8,21 @@ const TopButtons = styled.div`
     position: fixed;
     display: flex;
     justify-content: space-between;
-    margin: 0 auto;
+    margin: 2em 23vw;
+    width: 54vw;
     `
+const TopButton = styled.button`
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    &:hover {
+        background: #ffffff33;
+    }
+    transition: all 0.1s ease-in-out;
+    `
+
 const ReaderOuter = styled.div`
     margin: 0 auto;
     width: 100vw;
@@ -19,6 +32,7 @@ const ReaderOuter = styled.div`
 
 const ReaderContainer = styled.div`
     width: 40vw;
+    min-height: 90vh;
     box-shadow: 0 0 4px #ccc;
     padding: 10px 10px 0px 10px;
     margin: 5px auto;
@@ -119,8 +133,8 @@ export default function NewReader(props) {
     return (
         <div>
             <TopButtons>
-                <button onClick={prevPage}>Prev</button>
-                <button onClick={nextPage}>Next</button>
+                <TopButton onClick={prevPage}>PREV</TopButton>
+                <TopButton onClick={nextPage}>NEXT</TopButton>
             </TopButtons>
             <ReaderOuter>
                 <ReaderContainer ref={bookRef} />

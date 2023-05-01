@@ -7,19 +7,21 @@ const SummaryContainer = styled.div`
     backdrop-filter: blur(1px);
     font-family: 'Roboto', sans-serif;
     line-height: 1.5em;
+    font-weight: 600;
     `
 
-// side text is the gist, vertical text on the right side, in italics, no wrapping
+// side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
 const SideText = styled.div`
     position: absolute;
     top: 0;
-    right: -4em;
-    transform: translate(100%, 0);
+    left: 0;
     font-size: 0.8em;
     font-style: italic;
     color: cornflowerblue;
+    font-family: 'Times New Roman', serif;
     white-space: nowrap;
     line-height: 1em;
+    font-weight: 300;
     `
 
 
@@ -28,7 +30,7 @@ export default function SummerizedParagraphs(props) {
     const ref = useRef(null)
     const [summary, setSummary] = useState("")
     const [sideText, setSideText] = useState("")
-    const [lineHeight, setLineHeight] = useState(10)
+    const [lineHeight, setLineHeight] = useState(30)
 
     useEffect(() => {
         getSummary()
@@ -57,18 +59,18 @@ export default function SummerizedParagraphs(props) {
         lineHeight: lineHeight + 'px'
     }
 
-    useEffect(()=>{
-        if (ref.current) {
-            const height = ref.current.offsetHeight
-            if (Math.abs(height - element.offsetHeight) < 10) return
-            const heightOnlyText = height - 16
-            const lines = heightOnlyText / lineHeight
-            if (lines > 1) {
-                const targetLineHeight = (element.offsetHeight - 16) / lines
-                setLineHeight(targetLineHeight)
-            }
-        }
-    })
+    // useEffect(()=>{
+    //     if (ref.current) {
+    //         const height = ref.current.offsetHeight
+    //         if (Math.abs(height - element.offsetHeight) < 10) return
+    //         const heightOnlyText = height - 16
+    //         const lines = heightOnlyText / lineHeight
+    //         if (lines > 1) {
+    //             const targetLineHeight = (element.offsetHeight - 16) / lines
+    //             setLineHeight(targetLineHeight)
+    //         }
+    //     }
+    // })
 
     if (!props.visible) return null
 
