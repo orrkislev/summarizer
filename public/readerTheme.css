@@ -1,3 +1,7 @@
-.highlighted-paragraph{
-    background-color: #ffcc0066;
+body {
+    font-size: calc(12px + 1.2vw);
+}
+
+p {
+    padding: .25em;
 }

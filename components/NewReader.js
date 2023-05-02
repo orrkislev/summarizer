@@ -120,7 +120,12 @@ export default function NewReader(props) {
             setSummerizedParagraphs(newSummerizedParagraphs)
             return
         } else {
-            setSummerizedParagraphs([...summerizedParagraphs, { paragraph: currTarget, visible: true }])
+            setSummerizedParagraphs([...summerizedParagraphs, {
+                prevParagraphText: currTarget.previousSibling?.innerText,
+                paragraph: currTarget,
+                nextParagraphText: currTarget.nextSibling?.innerText,
+                visible: true
+            }])
         }
     }
 
@@ -145,6 +150,8 @@ export default function NewReader(props) {
                     paragraph={sp.paragraph}
                     visible={sp.visible}
                     onMouseEnter={() => setCurrTarget(sp.paragraph)}
+                    prev={sp.prevParagraphText}
+                    next={sp.nextParagraphText}
                     offsetLeft={bookRef.current.offsetLeft}
                     offsetTop={bookRef.current.offsetTop} />
             })}

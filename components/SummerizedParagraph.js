@@ -8,6 +8,7 @@ const SummaryContainer = styled.div`
     font-family: 'Roboto', sans-serif;
     line-height: 1.5em;
     font-weight: 600;
+    font-size: 1.5em;
     `
 
 // side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
@@ -15,12 +16,11 @@ const SideText = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    font-size: 0.8em;
+    font-size: 13px;
     font-style: italic;
     color: cornflowerblue;
     font-family: 'Times New Roman', serif;
     white-space: nowrap;
-    line-height: 1em;
     font-weight: 300;
     `
 
@@ -42,7 +42,12 @@ export default function SummerizedParagraphs(props) {
         const res = await fetch('/api/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: props.paragraph.innerText, html: props.paragraph.innerHTML })
+            body: JSON.stringify({ 
+                text: props.paragraph.innerText, 
+                html: props.paragraph.innerHTML,
+                prev: props.prev,
+                next: props.next
+            })
         })
         const { text, gist } = await res.json()
         setSummary(text)
@@ -59,25 +64,11 @@ export default function SummerizedParagraphs(props) {
         lineHeight: lineHeight + 'px'
     }
 
-    // useEffect(()=>{
-    //     if (ref.current) {
-    //         const height = ref.current.offsetHeight
-    //         if (Math.abs(height - element.offsetHeight) < 10) return
-    //         const heightOnlyText = height - 16
-    //         const lines = heightOnlyText / lineHeight
-    //         if (lines > 1) {
-    //             const targetLineHeight = (element.offsetHeight - 16) / lines
-    //             setLineHeight(targetLineHeight)
-    //         }
-    //     }
-    // })
-
     if (!props.visible) return null
 
     return (
         <SummaryContainer style={style} onMouseEnter={props.onMouseEnter}>
             <div style={{ padding: '1em' }} ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
-            {/* <div style={{ padding: '8px' }} ref={ref}> {summary} </div> */}
             <SideText> {sideText} </SideText>
         </SummaryContainer>
     )

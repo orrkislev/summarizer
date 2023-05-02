@@ -12,7 +12,11 @@ export default async function handler(req, res) {
     // prompt += `Use this context to summarize it: the paragraph which immediately precedes it reads: "${prev}". `
     // prompt += `The paragraph which immediately follows it reads: "${next}". the text to summarize is: "${origText}"`
 
-    // let prompt = `summarize this paragraph in up to ${targetWords}: /n/n "${origText}" /n/n summary:`
+    let prompt = `Summarize this in up to ${targetWords} words:` + req.body.html + ` /n`
+    if (req.body.prev) prompt += `The paragraph which immediately precedes it reads: "${req.body.prev}". `
+    if (req.body.next) prompt += `The paragraph which immediately follows it reads: "${req.body.next}". `
+
+    prompt += 'format your answer like this: summary:(summary), gist: (maximum 3 words)'
 
 
     const response = await openai.createChatCompletion({
@@ -20,8 +24,7 @@ export default async function handler(req, res) {
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags - please use the respected tags in the summary too. give me only the summary and nothing else." },
-            { "role": "user", "content": "format your answer like this: summary:(summary), gist: (maximum 3 words)" },
-            { "role": "user", "content": `Summarize this in up to ${targetWords} words:` + req.body.html },
+            { "role": "user", "content":  prompt },
         ]
     });
 
