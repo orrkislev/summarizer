@@ -42,10 +42,10 @@ const ReaderContainer = styled.div`
 
 const Dot = styled.div`
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: red;
+    background: #40E0D0;
     transition: all 0.2s ease-in-out;
     `
 
@@ -77,19 +77,25 @@ export default function NewReader(props) {
 
     useEffect(() => {
         if (rendition) {
-            rendition.on('render', (e) => {
-                setCurrTarget(null);
+            rendition.on('relocated', (location) => {
+                console.log(rendition)
             })
+
+
             window.lastTarget = null;
-            rendition.on('mousemove', (e) => {
+            const onMouse = (e)=>{
                 let target = e.target;
                 if (['BODY', 'SECTION', 'HTML'].includes(target.tagName)) return;
                 if (target.parentElement.tagName === 'P') target = target.parentElement;
 
                 if (window.lastTarget && window.lastTarget === target) return;
                 window.lastTarget = target;
+                console.log(target.getBoundingClientRect().top);
                 setCurrTarget(target);
-            })
+            }
+            rendition.on('mousedown', onMouse)
+            rendition.on('mousemove', onMouse)
+            rendition.on('touchstart', onMouse)
         }
     }, [rendition])
 
@@ -131,8 +137,8 @@ export default function NewReader(props) {
 
     const dotPosition = { x: -10, y: -10 }
     if (currTarget != null) {
-        dotPosition.x = currTarget.offsetLeft + bookRef.current.offsetLeft - 10
-        dotPosition.y = currTarget.offsetTop + bookRef.current.offsetTop + 10
+        dotPosition.x = currTarget.offsetLeft + bookRef.current.offsetLeft - 15
+        dotPosition.y = currTarget.offsetTop + bookRef.current.offsetTop + 15
     }
 
     return (

@@ -8,10 +8,6 @@ export default async function handler(req, res) {
 
     const targetWords = Math.round(req.body.text.split(' ').length / 3)
 
-    // let prompt = `summarize this paragraph in up to ${targetWords} words and Don't use 'this text' in the opening.`
-    // prompt += `Use this context to summarize it: the paragraph which immediately precedes it reads: "${prev}". `
-    // prompt += `The paragraph which immediately follows it reads: "${next}". the text to summarize is: "${origText}"`
-
     let prompt = `Summarize this in up to ${targetWords} words:` + req.body.html + ` /n`
     if (req.body.prev) prompt += `The paragraph which immediately precedes it reads: "${req.body.prev}". `
     if (req.body.next) prompt += `The paragraph which immediately follows it reads: "${req.body.next}". `
