@@ -1,3 +1,7 @@
+html, body {
+    touch-action: auto;
+}
+
 body {
     font-size: calc(12px + 1.2vw);
 }

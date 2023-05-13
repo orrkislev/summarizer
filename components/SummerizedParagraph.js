@@ -24,6 +24,14 @@ const SideText = styled.div`
     font-weight: 300;
     `
 
+const Dot = styled.div`
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #40E0D0;
+    transition: all 0.2s ease-in-out;
+    `
 
 
 export default function SummerizedParagraphs(props) {
@@ -31,10 +39,13 @@ export default function SummerizedParagraphs(props) {
     const [summary, setSummary] = useState("")
     const [sideText, setSideText] = useState("")
     const [lineHeight, setLineHeight] = useState(30)
+    const [visible, setVisible] = useState(false)
 
     useEffect(() => {
-        getSummary()
-    }, [])
+        if (visible && summary === "") {
+            getSummary()
+        }
+    }, [visible])
 
     const getSummary = async () => {
         if (summary !== "") return
@@ -64,12 +75,17 @@ export default function SummerizedParagraphs(props) {
         lineHeight: lineHeight + 'px'
     }
 
-    if (!props.visible) return null
+    // if (!props.visible) return null
 
     return (
-        <SummaryContainer style={style} onMouseEnter={props.onMouseEnter}>
-            <div style={{ padding: '1em' }} ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
-            <SideText> {sideText} </SideText>
-        </SummaryContainer>
+        <>
+        <Dot style={{top: style.top, left: style.left-30}} onClick={() => setVisible(!visible)} />
+        {visible && 
+            <SummaryContainer style={style} onMouseEnter={props.onMouseEnter}>
+                <div style={{ padding: '1em' }} ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
+                <SideText> {sideText} </SideText>
+            </SummaryContainer>
+        }
+        </>
     )
 }
