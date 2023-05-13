@@ -20,9 +20,9 @@ export default function Home() {
   };
 
   return (
-    <div style={{color:'white'}}>
+    <div>
       {!file && (
-        <div>
+        <div style={{color:'white'}}>
           <h1>Upload an EPUB file</h1>
           <input type="file" onChange={handleFileUpload} />
         </div>

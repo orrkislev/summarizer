@@ -46,7 +46,7 @@ const Dot = styled.div`
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #40E0D0;
+    background: red;
     transition: all 0.2s ease-in-out;
     `
 
@@ -54,9 +54,8 @@ const Dot = styled.div`
 export default function NewReader(props) {
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
-    const [currTarget, setCurrTarget] = useState(null);
+    const [mainDotPos, setMainDotPos] = useState({ x: 0, y: 0 })
     const [summerizedParagraphs, setSummerizedParagraphs] = useState([]);
-    const [debugText, setDebugText] = useState('')
 
     useEffect(() => {
         if (props.file) loadBook()
@@ -79,53 +78,30 @@ export default function NewReader(props) {
 
     useEffect(() => {
         if (rendition) {
-            rendition.on('relocated', (section) => {
-                
+            rendition.on('relocated', (section) => {   
                 if (summerizedParagraphs.length > 0) return;
                 setTimeout(() => {
                     const iframe = document.querySelector('iframe')
                     if (!iframe) return;
                     const firstChild = iframe.contentDocument.body.children[0]
-                    if (firstChild.tagName === 'SECTION') 
+                    if (firstChild.tagName === 'SECTION'){
+                        setMainDotPos({x:firstChild.offsetLeft, y:firstChild.offsetTop})
                         setSummerizedParagraphs(getParagraphs(firstChild))
+                    }
                 }, 100)
             })
-
-
-            // window.lastTarget = null;
-            // const onMouse = (e)=>{
-            //     setDebugText(e.type)
-            //     let target = e.target;
-            //     if (['BODY', 'SECTION', 'HTML'].includes(target.tagName)) return;
-            //     if (target.parentElement.tagName === 'P') target = target.parentElement;
-
-            //     if (window.lastTarget && window.lastTarget === target) return;
-            //     window.lastTarget = target;
-            //     setCurrTarget(target);
-            // }
-            // rendition.on('mousedown', onMouse)
-            // rendition.on('mousemove', onMouse)
-            // rendition.on('touchstart', onMouse)
         }
     }, [rendition])
-
-    // useEffect(() => {
-    //     if (currTarget) {
-    //         window.lastTarget = currTarget
-    //     }
-    // }, [currTarget])
 
     if (!props.file) return null;
 
     const nextPage = () => {
         setSummerizedParagraphs([])
         rendition.next();
-        // setCurrTarget(null)
     }
     const prevPage = () => {
         setSummerizedParagraphs([])
         rendition.prev();
-        // setCurrTarget(null)
     }
 
     // const clickDot = () => {
@@ -151,6 +127,15 @@ export default function NewReader(props) {
     //     dotPosition.y = currTarget.offsetTop + bookRef.current.offsetTop + 15
     // }
 
+    const clickMainDot = () => {
+        // update all paragraphs to be visible
+        const newSummerizedParagraphs = [...summerizedParagraphs]
+        newSummerizedParagraphs.forEach(sp => sp.visible = true)
+        setSummerizedParagraphs(newSummerizedParagraphs)
+    }
+
+    console.log(mainDotPos)
+
     return (
         <div>
             {/* <span style={{color:'white'}}>{debugText}</span> */}
@@ -161,12 +146,12 @@ export default function NewReader(props) {
             <ReaderOuter>
                 <ReaderContainer id="aaaaaaaaaaa" ref={bookRef} />
             </ReaderOuter>
-            {/* {currTarget != null && <Dot style={{ left: dotPosition.x, top: dotPosition.y }} onClick={clickDot} />} */}
+            {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>}
             {summerizedParagraphs.map((sp, index) => {
                 return <SummerizedParagraphs key={index}
                     paragraph={sp.paragraph}
                     visible={sp.visible}
-                    onMouseEnter={() => setCurrTarget(sp.paragraph)}
+                    // onMouseEnter={() => setCurrTarget(sp.paragraph)}
                     prev={sp.prevParagraphText}
                     next={sp.nextParagraphText}
                     offsetLeft={bookRef.current.offsetLeft}

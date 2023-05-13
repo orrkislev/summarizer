@@ -8,7 +8,7 @@ const SummaryContainer = styled.div`
     font-family: 'Roboto', sans-serif;
     line-height: 1.5em;
     font-weight: 600;
-    font-size: 1.5em;
+    font-size: 1.3em;
     `
 
 // side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
@@ -40,6 +40,10 @@ export default function SummerizedParagraphs(props) {
     const [sideText, setSideText] = useState("")
     const [lineHeight, setLineHeight] = useState(30)
     const [visible, setVisible] = useState(false)
+
+    useEffect(()=>{
+        if (props.visible) setVisible(true)
+    }, [props.visible])
 
     useEffect(() => {
         if (visible && summary === "") {
