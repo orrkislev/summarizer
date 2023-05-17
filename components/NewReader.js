@@ -134,9 +134,12 @@ export default function NewReader(props) {
 
 
 function getParagraphs(section){
+    const paragraphsElements = section.querySelectorAll('p')
+
     const paragraphs = []
-    Array.from(section.children).forEach((p, i) => {
-        if (p.tagName == 'SECTION') paragraphs.push(...getParagraphs(p))
+    // Array.from(section.children).forEach((p, i) => {
+    paragraphsElements.forEach((p, i) => {
+        // if (p.tagName == 'SECTION') paragraphs.push(...getParagraphs(p))
         const parText = p.innerText
         const words = parText.split(' ')
         if (words.length < 10) return;
