@@ -6,9 +6,9 @@ const SummaryContainer = styled.div`
     background: #ffffffdd;
     backdrop-filter: blur(1px);
     font-family: 'Roboto', sans-serif;
-    line-height: 1.5em;
+    line-height: 1.3em;
     font-weight: 600;
-    font-size: 1.3em;
+    font-size: 1.1em;
     `
 
 // side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
@@ -38,7 +38,6 @@ export default function SummerizedParagraphs(props) {
     const ref = useRef(null)
     const [summary, setSummary] = useState("")
     const [sideText, setSideText] = useState("")
-    const [lineHeight, setLineHeight] = useState(30)
     const [visible, setVisible] = useState(false)
 
     useEffect(()=>{
@@ -76,7 +75,6 @@ export default function SummerizedParagraphs(props) {
         height: element.offsetHeight,
         top: element.offsetTop + props.offsetTop + 10,
         left: element.offsetLeft + props.offsetLeft + 10,
-        lineHeight: lineHeight + 'px'
     }
 
     // if (!props.visible) return null
