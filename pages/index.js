@@ -131,7 +131,7 @@ function Row(props) {
         <>
             <OrigText>{props.row[0]}</OrigText>
             <GPTText onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-                {text}
+                <TextShow text={text} />
                 {hover &&
                     <GPTButtons>
                         <GPTButton onClick={getLonger}>Longer</GPTButton> |
@@ -143,4 +143,25 @@ function Row(props) {
             <ShortText>{props.row[2]}</ShortText>
         </>
     )
+}
+
+function TextShow({ text }) {
+    const [currText, setCurrText] = useState('')
+
+
+    useEffect(() => {
+        if (text === currText) return
+        setCurrText('')
+        showText(text)
+    }, [text])
+
+    const showText = async (text) => {
+        const words = text.split(' ')
+        for (let i = 0; i < words.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 100))
+            setCurrText(words.slice(0, i + 1).join(' '))
+        }
+    }
+
+    return <>{currText}</>
 }

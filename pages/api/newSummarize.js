@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         model: "gpt-3.5-turbo",
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags - please use the respected tags in the summary too. give me only the summary and nothing else." },
+            { "role": "user", "content": "You Summarize paragraphs from a book. give me only the summary and nothing else, dont respond with 'this paragraph'." },
             { "role": "user", "content":  prompt },
         ]
     });
