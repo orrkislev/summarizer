@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
     let targetWords = Math.round(req.body.target)
 
-    let prompt = `Summarize this in up to ${targetWords} words:` + req.body.html + ` /n`
+    let prompt = `Summarize this in up to ${targetWords} words:` + req.body.text + ` /n`
     if (req.body.before) prompt += `The paragraph which immediately precedes it reads: "${req.body.before}". `
     if (req.body.after) prompt += `The paragraph which immediately follows it reads: "${req.body.after}". `
 
