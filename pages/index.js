@@ -3,21 +3,18 @@ import styled from "styled-components";
 
 const OrigText = styled.td`
     padding: 0.5em;
-    font-family: Times New Roman, Times, serif;
     font-size: 1rem;
     width: 35rem;
     text-align: justify;
 `
 const GPTText = styled.td`
     padding: 0.5em;
-    font-family: Times New Roman, Times, serif;
     font-size: 1.2rem;
     color: mediumvioletred;
     width: 17em;
 `
 const ShortText = styled.td`
     padding: 0.5em;
-    font-family: Times New Roman, Times, serif;
     font-size: 1.2rem;
     color: royalblue;
     width: 10em;

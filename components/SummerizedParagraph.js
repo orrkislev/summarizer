@@ -5,7 +5,6 @@ const SummaryContainer = styled.div`
     position: absolute;
     background: #ffffffdd;
     backdrop-filter: blur(1px);
-    font-family: 'Roboto', sans-serif;
     line-height: 1.3em;
     font-weight: 600;
     font-size: 1.1em;
@@ -19,7 +18,6 @@ const SideText = styled.div`
     font-size: 13px;
     font-style: italic;
     color: cornflowerblue;
-    font-family: 'Times New Roman', serif;
     white-space: nowrap;
     font-weight: 300;
     `
