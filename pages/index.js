@@ -2,18 +2,21 @@ import { useEffect, useState } from "react"
 import styled from "styled-components";
 
 const OrigText = styled.td`
+    font-family: 'sagoe ui';
     padding: 0.5em;
     font-size: 1rem;
     width: 35rem;
     text-align: justify;
 `
 const GPTText = styled.td`
+    font-family: 'CrimsonText';
     padding: 0.5em;
     font-size: 1.2rem;
     color: mediumvioletred;
     width: 17em;
 `
 const ShortText = styled.td`
+    font-family: 'CrimsonText';
     padding: 0.5em;
     font-size: 1.2rem;
     color: royalblue;
@@ -102,23 +105,24 @@ function Row(props) {
         if (props.before) data.before = props.before[0]
         if (props.after) data.after = props.after[0]
         data.text = props.row[0]
+        data.current = text
         const res = await fetch('/api/newSummarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        const { text } = await res.json()
-        setText(text)
+        const { summary } = await res.json()
+        setText(summary)
     }
 
     function getShorter() {
-        getGPT({ target: text.split(' ').length - 10 })
+        getGPT({ action: 'shorter' })
     }
     function getLonger() {
-        getGPT({ target: text.split(' ').length + 10 })
+        getGPT({ action: 'longer' })
     }
     function getNew() {
-        getGPT({ target: props.row[1].split(' ').length })
+        getGPT({ action: 'new' })
     }
 
 

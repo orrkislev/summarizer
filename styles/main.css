@@ -8,8 +8,7 @@ body {
     src: url('/fonts/CrimsonText-Regular.ttf');
 }
 
-body{
-    font-family: 'CrimsonText';
-    font-size: 16px;
-    color: #333;
+@font-face {
+    font-family: 'Sagoe UI';
+    src: url('/fonts/Segoe UI.ttf');
 }
