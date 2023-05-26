@@ -3,10 +3,9 @@ body {
     background-color: white;
 }
 
- /* use font CrimsonText from public/font */
 @font-face {
     font-family: 'CrimsonText';
-    src: url('/font/CrimsonText-Regular.ttf');
+    src: url('/fonts/CrimsonText-Regular.ttf');
 }
 
 body{
