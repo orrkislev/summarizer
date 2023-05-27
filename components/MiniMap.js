@@ -9,14 +9,14 @@ export default function MiniMap(props) {
             setScroll(window.scrollY / 5)
         })
         const table = props.table.current
-        const rows = table.querySelectorAll('tr')[1]
+        const rows = table.querySelectorAll('tr')[0]
         const cell = rows.querySelector('td')
         setWidth(cell.offsetWidth / 5 + 10)
     }, [])
 
     function drag(e){
         const delta = e.movementY
-        window.scrollBy(0, delta * 4 * document.body.offsetHeight / window.innerHeight)
+        window.scrollBy(0, delta * 1 * document.body.offsetHeight / window.innerHeight)
     }
     function stopDrag(e) {
         window.removeEventListener('mousemove', drag)
@@ -28,8 +28,8 @@ export default function MiniMap(props) {
         window.addEventListener('mouseup', stopDrag)
     }
 
-    const offsetTop = -((scroll * 5) / document.body.offsetHeight) * window.innerHeight * 5 + 'px'
-
+    const offsetTop = -((scroll * 5) / document.body.offsetHeight) * window.innerHeight * 4 + 'px'
+    
     return (
         <div id='mapContainer' style={{ top: offsetTop }}>
             <div id='map'>
@@ -43,6 +43,7 @@ export default function MiniMap(props) {
                     height: ${window.innerHeight / 5}px;
                     width: 100%;
                     background-color: rgba(0,0,0,0.2);
+                    cursor: grab;
                 }
                 #map {
                     position: absolute;
@@ -73,14 +74,29 @@ function MiniMapInner(props) {
         const cellText = cell.innerText
         const cellHeight = cell.offsetHeight / 5
         const cellWidth = cell.offsetWidth / 5
-        const cellFontSize = 16 / 5 + 'px'
+        let cellFontSize = 16 / 5 + 'px'
 
         const rowChildren = row.children.length
-        console.log(rowChildren)
-        const clr = rowChildren == 3 ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,1,1)'
+        if (rowChildren == 1) cellFontSize = '10px'
+
+        const inners = []
+        inners.push(<div key={1} style={{width: cellWidth, color: 'transparent', textAlign: 'justify' }}><span style={{ color: 'gray' }}>{cellText}</span></div>)
+
+        if (rowChildren == 3) {
+            const cell2 = row.children[1]
+            const cell2Width = cell2.offsetWidth / 5
+            const cell2Text = cell2.innerText
+            inners.push(<div key={2} style={{width: cell2Width, color: 'transparent' }}><span style={{ color: 'red' }}>{cell2Text}</span></div>)
+
+            const cell3 = row.children[2]
+            const cell3Width = cell3.offsetWidth / 5
+            const cell3Text = cell3.innerText
+            inners.push(<div key={3} style={{width: cell3Width, color: 'transparent' }}><span style={{ color: 'blue' }}>{cell3Text}</span></div>)
+        }
+
         mapSections.push(
-            <div key={cellText} style={{ fontSize: cellFontSize, width: cellWidth, height: cellHeight, color: 'transparent', textAlign: 'justify' }}>
-                <span style={{ background: clr }}>{cellText}</span>
+            <div key={cellText} style={{ fontSize: cellFontSize, height: cellHeight, color: 'transparent', display:'flex', gap:'3px'}}>
+                {inners}
             </div>
         )
     })
