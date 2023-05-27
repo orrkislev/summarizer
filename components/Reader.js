@@ -42,7 +42,6 @@ const GPTButtons = styled.div`
     gap: 0.5em;
     margin-top: 0.5em;
     font-size: 0.8rem;
-
     `
 const GPTButton = styled.div`
     color: royalblue;
@@ -56,6 +55,12 @@ const GPTButton = styled.div`
     }
     transition: all 0.1s ease-in-out;
     `
+const GPTButtonText = styled.span`
+    color: royalblue;
+    font-weight: bold;
+    padding: 0.2em 0.5em;
+    `
+    
 const SectionTitle = styled.h2`
     color: royalblue;
     font-family: 'CrimsonText';
@@ -176,7 +181,8 @@ function Row(props) {
                         {texts.length > 1 && (
                             <>
                             <GPTButton onClick={lastText}>{'<'}</GPTButton>
-                            <GPTButton onClick={nextText}>{'>'}</GPTButton>
+                            <GPTButton onClick={nextText}>{'>'}</GPTButton> 
+                            <GPTButtonText>{texts.indexOf(text)+1}/{texts.length}</GPTButtonText>
                             </>
 
                         )}
