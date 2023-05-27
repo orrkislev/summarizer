@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import MiniMap from "@/components/MiniMap";
+import { useEffect, useRef, useState } from "react"
 import styled from "styled-components";
 
 const OrigText = styled.td`
@@ -47,6 +48,7 @@ const SectionTitle = styled.h2`
     `
 
 export default function Home() {
+    const tableRef = useRef(null)
     const [csv, setCsv] = useState(null);
 
     useEffect(() => {
@@ -64,7 +66,8 @@ export default function Home() {
 
     return (
         <div>
-            <table>
+            <MiniMap table={tableRef} />
+            <table ref={tableRef}>
                 <tbody>
                     {csv.map((row, index) => {
                         if (index === 0) return null
