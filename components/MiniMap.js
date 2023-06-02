@@ -69,7 +69,7 @@ function MiniMapInner(props) {
     const mapSections = []
     const table = props.table.current
     const rows = table.querySelectorAll('tr')
-    rows.forEach(row => {
+    rows.forEach((row,rowI) => {
         const cell = row.querySelector('td')
         const cellText = cell.innerText
         const cellHeight = cell.offsetHeight / 5
@@ -95,7 +95,7 @@ function MiniMapInner(props) {
         }
 
         mapSections.push(
-            <div key={cellText} style={{ fontSize: cellFontSize, height: cellHeight, color: 'transparent', display:'flex', gap:'3px'}}>
+            <div key={rowI} style={{ fontSize: cellFontSize, height: cellHeight, color: 'transparent', display:'flex', gap:'3px'}}>
                 {inners}
             </div>
         )

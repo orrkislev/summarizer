@@ -95,7 +95,7 @@ export default function Reader(props) {
             <table ref={tableRef}>
                 <tbody>
                     {csv.map((row, index) => {
-                        if (index === 0) return null
+                        // if (index === 0) return null
                         return (
                             <tr key={index}>
                                 <Row row={row}
