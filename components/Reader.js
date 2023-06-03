@@ -9,6 +9,7 @@ const OrigText = styled.td`
     font-size: 1rem;
     width: 35rem;
     text-align: justify;
+    white-space: pre-wrap;
     ::selection {
         background-color: pink;
         color:royalblue;
@@ -95,7 +96,7 @@ export default function Reader(props) {
             <table ref={tableRef}>
                 <tbody>
                     {csv.map((row, index) => {
-                        // if (index === 0) return null
+                        if (index === 0) return null
                         return (
                             <tr key={index}>
                                 <Row row={row}
@@ -170,7 +171,7 @@ function Row(props) {
     if (props.row[0] != '' && props.row[1] == '') return <td colSpan="3"><SectionTitle>{props.row[0]}</SectionTitle></td>
     return (
         <>
-            <OrigText>{props.row[0]}</OrigText>
+            <OrigText dangerouslySetInnerHTML={{ __html: props.row[0] }} />
             <GPTText onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 {text.length > 0 ? <TextShow text={text} /> : <Loader />}
                 {hover &&
