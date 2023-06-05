@@ -3,6 +3,20 @@ import useLazyLoad from "@/utils/useLazyLoad";
 import { useEffect, useRef, useState } from "react"
 import styled from "styled-components";
 
+
+const ID = styled.td`
+    font-family: 'CrimsonText';
+    padding: 0.5em;
+    font-size: 0.75rem;
+    color: mediumvioletred;
+    width: 1em;
+    text-align: center;
+    ::selection {
+        background-color: pink;
+        color:royalblue;
+    }
+`
+
 const OrigText = styled.td`
     font-family: 'CrimsonText';
     padding: 0.5em;
@@ -84,22 +98,32 @@ export default function Reader(props) {
             .then(text => {
                 const rows = text.split('\n')
                 const data = rows.map(row => row.split('\t'))
-                setCsv(data)
+                let counter = 0
+                const newData = data.map(row => {
+                    return {
+                        texts: row,
+                        id: row[1] != '' ? counter++ : null
+                    }
+                })
+                setCsv(newData)
             })
     }, [])
 
     if (!csv) return null
 
+    console.log(csv)
+
     return (
         <div>
-            <MiniMap table={tableRef} />
+            {/* <MiniMap table={tableRef} /> */}
             <table ref={tableRef}>
                 <tbody>
                     {csv.map((row, index) => {
                         if (index === 0) return null
                         return (
                             <tr key={index}>
-                                <Row row={row}
+                                <Row row={row.texts}
+                                    index={row.id}
                                     before={index > 0 ? csv[index - 1] : null}
                                     after={index < csv.length - 1 ? csv[index + 1] : null}
                                 />
@@ -171,6 +195,7 @@ function Row(props) {
     if (props.row[0] != '' && props.row[1] == '') return <td colSpan="3"><SectionTitle>{props.row[0]}</SectionTitle></td>
     return (
         <>
+            <ID>{props.index}</ID>
             <OrigText dangerouslySetInnerHTML={{ __html: props.row[0] }} />
             <GPTText onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 {text.length > 0 ? <TextShow text={text} /> : <Loader />}
