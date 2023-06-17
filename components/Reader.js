@@ -2,6 +2,7 @@ import MiniMap from "@/components/MiniMap";
 import useLazyLoad from "@/utils/useLazyLoad";
 import { useEffect, useRef, useState } from "react"
 import styled from "styled-components";
+import Dots from "./Dots";
 
 
 const ID = styled.td`
@@ -75,7 +76,7 @@ const GPTButtonText = styled.span`
     font-weight: bold;
     padding: 0.2em 0.5em;
     `
-    
+
 const SectionTitle = styled.h2`
     color: royalblue;
     font-family: 'CrimsonText';
@@ -89,10 +90,33 @@ const SectionTitle = styled.h2`
 export default function Reader(props) {
     const tableRef = useRef(null)
     const [csv, setCsv] = useState(null);
+    const [currPar, setCurrPar] = useState(1)
+    const [parSum, setParSum] = useState(0)
+    const [scrollTo, setScrollTo] = useState(null)
+
+    useEffect(()=>{
+        console.log('scrollTo',scrollTo)
+        if (scrollTo) {
+            const cookie = document.cookie
+            const cookieName = 'scrollTo'
+            const cookieValue = scrollTo
+            const cookieExpires = 'expires=Fri, 31 Dec 9999 23:59:59 GMT'
+            document.cookie = `${cookieName}=${cookieValue};${cookieExpires};path=/`
+        }
+    },[scrollTo])
+
+    useEffect(()=>{
+        if (document.cookie) {
+            const cookie = document.cookie
+            const cookieName = 'scrollTo'
+            const cookieValue = cookie.split(';').find(row => row.startsWith(cookieName)).split('=')[1]
+            setTimeout(()=>setScrollTo(parseInt(cookieValue)),500)
+        }
+    },[])
 
     useEffect(() => {
         console.log(props.filename)
-        const file = '/files/'+props.filename
+        const file = '/files/' + props.filename
         fetch(file)
             .then(res => res.text())
             .then(text => {
@@ -105,33 +129,37 @@ export default function Reader(props) {
                         id: row[1] != '' ? counter++ : null
                     }
                 })
+                setParSum(counter)
                 setCsv(newData)
             })
     }, [])
 
     if (!csv) return null
 
-    console.log(csv)
-
     return (
-        <div>
-            {/* <MiniMap table={tableRef} /> */}
-            <table ref={tableRef}>
-                <tbody>
-                    {csv.map((row, index) => {
-                        if (index === 0) return null
-                        return (
-                            <tr key={index}>
-                                <Row row={row.texts}
-                                    index={row.id}
-                                    before={index > 0 ? csv[index - 1] : null}
-                                    after={index < csv.length - 1 ? csv[index + 1] : null}
-                                />
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+        <>
+            <Dots sum={parSum} curr={currPar-1} onClick={index=>setScrollTo(index)}/>
+            <div>
+                {/* <MiniMap table={tableRef} /> */}
+                <table ref={tableRef}>
+                    <tbody>
+                        {csv.map((row, index) => {
+                            if (index === 0) return null
+                            return (
+                                <tr key={index}>
+                                    <Row row={row.texts}
+                                        index={row.id}
+                                        before={index > 0 ? csv[index - 1] : null}
+                                        after={index < csv.length - 1 ? csv[index + 1] : null}
+                                        onActive={val => setCurrPar(row.id)}
+                                        goto={scrollTo === row.id}
+                                    />
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
             <style jsx>{`
                 table {
                     border-collapse: collapse;
@@ -142,7 +170,7 @@ export default function Reader(props) {
                 }
             `}</style>
 
-        </div>
+        </>
     )
 
 }
@@ -153,6 +181,18 @@ function Row(props) {
     const [hover, setHover] = useState(false)
     const [text, setText] = useState(props.row[1])
     const [texts, setTexts] = useState([props.row[1]])
+    const myRef = useRef(null)
+    const inView = useLazyLoad(myRef)
+
+    useEffect(() => {
+        if (inView) props.onActive(inView)
+    }, [inView])
+
+    useEffect(()=>{
+        if (props.goto && myRef.current){
+            myRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+    },[props.goto])
 
     async function getGPT(data) {
         setText('')
@@ -195,7 +235,7 @@ function Row(props) {
     if (props.row[0] != '' && props.row[1] == '') return <td colSpan="3"><SectionTitle>{props.row[0]}</SectionTitle></td>
     return (
         <>
-            <ID>{props.index}</ID>
+            <ID ref={myRef}>{props.index}</ID>
             <OrigText dangerouslySetInnerHTML={{ __html: props.row[0] }} />
             <GPTText onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
                 {text.length > 0 ? <TextShow text={text} /> : <Loader />}
@@ -206,9 +246,9 @@ function Row(props) {
                         <GPTButton onClick={getNew}>Regenerate</GPTButton>
                         {texts.length > 1 && (
                             <>
-                            <GPTButton onClick={lastText}>{'<'}</GPTButton>
-                            <GPTButton onClick={nextText}>{'>'}</GPTButton> 
-                            <GPTButtonText>{texts.indexOf(text)+1}/{texts.length}</GPTButtonText>
+                                <GPTButton onClick={lastText}>{'<'}</GPTButton>
+                                <GPTButton onClick={nextText}>{'>'}</GPTButton>
+                                <GPTButtonText>{texts.indexOf(text) + 1}/{texts.length}</GPTButtonText>
                             </>
 
                         )}
@@ -224,20 +264,24 @@ function TextShow({ text }) {
     const myRef = useRef(null)
     const [currText, setCurrText] = useState('')
     const inView = useLazyLoad(myRef)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (text === currText) return
         if (!inView) return
+        if (loading) return
         setCurrText('')
         showText(text)
     }, [text, inView])
 
     const showText = async (text) => {
+        setLoading(true)
         const words = text.split(' ')
         for (let i = 0; i < words.length; i++) {
             await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
             setCurrText(words.slice(0, i + 1).join(' '))
         }
+        setLoading(false)
     }
 
     return <div ref={myRef}>{currText}</div>
