@@ -5,20 +5,20 @@ import SummerizedParagraphs from './SummerizedParagraph';
 
 
 const TopButtons = styled.div`
-    position: fixed;
     display: flex;
-    justify-content: space-between;
-    margin: 2em calc(50vw - 20em);
-    width: 40em;
+    gap: 1em;
+    border-bottom: 1px solid #ccc;
+    padding: .25em;
     `
 const TopButton = styled.button`
     background: none;
-    padding: .5em 1em;
+    padding: .25em .5em;
     border: none;
     cursor: pointer;
     border-radius: 5px;
     &:hover {
-        background: #ffffff33;
+        background: black;
+        color: white;
     }
     transition: all 0.1s ease-in-out;
     `
@@ -31,13 +31,13 @@ const ReaderOuter = styled.div`
 
 
 const ReaderContainer = styled.div`
-    width: 30em;
-    min-height: 90vh;
-    box-shadow: 0 0 4px #ccc;
-    padding: 10px 10px 0px 10px;
-    margin: 5px auto;
-    background: white;
-    border-radius: 5px;
+    width: 35vw;
+    // min-height: 90vh;
+    // box-shadow: 0 0 4px #ccc;
+    // padding: 10px 10px 0px 10px;
+    // margin: 5px auto;
+    // background: white;
+    // border-radius: 5px;
     `
 
 const Dot = styled.div`
@@ -107,9 +107,6 @@ export default function NewReader(props) {
         setSummerizedParagraphs(newSummerizedParagraphs)
     }
 
-    if (bookRef.current)
-        console.log(bookRef.current.offsetLeft + bookRef.current.offsetWidth)
-
     return (
         <div>
             <TopButtons>
@@ -119,7 +116,7 @@ export default function NewReader(props) {
             <ReaderOuter>
                 <ReaderContainer ref={bookRef} />
             </ReaderOuter>
-            {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>}
+            {/* {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>} */}
             {summerizedParagraphs.map((sp, index) => {
                 return <SummerizedParagraphs key={index}
                     paragraph={sp.paragraph}
@@ -144,7 +141,7 @@ function getParagraphs(section){
         // if (p.tagName == 'SECTION') paragraphs.push(...getParagraphs(p))
         const parText = p.innerText
         const words = parText.split(' ')
-        if (words.length < 10) return;
+        if (words.length < 50) return;
         paragraphs.push({
             prevParagraphText: p.previousSibling?.innerText,
             paragraph: p,

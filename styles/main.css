@@ -1,6 +1,7 @@
 /* dark theme */
 body {
     background-color: white;
+    margin: 0;
 }
 
 @font-face {
