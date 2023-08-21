@@ -94,8 +94,8 @@ export default function Reader(props) {
     const [parSum, setParSum] = useState(0)
     const [scrollTo, setScrollTo] = useState(null)
 
-    useEffect(()=>{
-        console.log('scrollTo',scrollTo)
+    useEffect(() => {
+        console.log('scrollTo', scrollTo)
         if (scrollTo) {
             const cookie = document.cookie
             const cookieName = 'scrollTo'
@@ -103,42 +103,58 @@ export default function Reader(props) {
             const cookieExpires = 'expires=Fri, 31 Dec 9999 23:59:59 GMT'
             document.cookie = `${cookieName}=${cookieValue};${cookieExpires};path=/`
         }
-    },[scrollTo])
+    }, [scrollTo])
 
-    useEffect(()=>{
+    useEffect(() => {
         if (document.cookie) {
             const cookie = document.cookie
             const cookieName = 'scrollTo'
             const cookieValue = cookie.split(';').find(row => row.startsWith(cookieName)).split('=')[1]
-            setTimeout(()=>setScrollTo(parseInt(cookieValue)),500)
+            setTimeout(() => setScrollTo(parseInt(cookieValue)), 500)
         }
-    },[])
+    }, [])
 
     useEffect(() => {
-        console.log(props.filename)
-        const file = '/files/' + props.filename
-        fetch(file)
-            .then(res => res.text())
-            .then(text => {
-                const rows = text.split('\n')
-                const data = rows.map(row => row.split('\t'))
-                let counter = 0
-                const newData = data.map(row => {
-                    return {
-                        texts: row,
-                        id: row[1] != '' ? counter++ : null
-                    }
+        if (props.filename) {
+            console.log(props.filename)
+            const file = '/files/' + props.filename
+            fetch(file)
+                .then(res => res.text())
+                .then(text => {
+                    const rows = text.split('\n')
+                    const data = rows.map(row => row.split('\t'))
+                    let counter = 0
+                    const newData = data.map(row => {
+                        return {
+                            texts: row,
+                            id: row[1] != '' ? counter++ : null
+                        }
+                    })
+                    setParSum(counter)
+                    setCsv(newData)
                 })
-                setParSum(counter)
-                setCsv(newData)
+        }
+    }, [props.filename])
+
+    useEffect(()=>{
+        if (props.texts) {
+            let counter = 0
+            const newData = props.texts.map(row => {
+                return {
+                    texts: row,
+                    id: row[1] != '' ? counter++ : null
+                }
             })
-    }, [])
+            setParSum(counter)
+            setCsv(newData)
+        }
+    },[props.texts])
 
     if (!csv) return null
 
     return (
         <>
-            <Dots sum={parSum} curr={currPar-1} onClick={index=>setScrollTo(index)}/>
+            {/* <Dots sum={parSum} curr={currPar - 1} onClick={index => setScrollTo(index)} /> */}
             <div>
                 {/* <MiniMap table={tableRef} /> */}
                 <table ref={tableRef}>
@@ -188,11 +204,11 @@ function Row(props) {
         if (inView) props.onActive(inView)
     }, [inView])
 
-    useEffect(()=>{
-        if (props.goto && myRef.current){
+    useEffect(() => {
+        if (props.goto && myRef.current) {
             myRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
-    },[props.goto])
+    }, [props.goto])
 
     async function getGPT(data) {
         setText('')

@@ -15,7 +15,6 @@ const TopButton = styled.button`
     background: none;
     padding: .5em 1em;
     border: none;
-    color: white;
     cursor: pointer;
     border-radius: 5px;
     &:hover {
@@ -108,6 +107,9 @@ export default function NewReader(props) {
         setSummerizedParagraphs(newSummerizedParagraphs)
     }
 
+    if (bookRef.current)
+        console.log(bookRef.current.offsetLeft + bookRef.current.offsetWidth)
+
     return (
         <div>
             <TopButtons>
@@ -115,7 +117,7 @@ export default function NewReader(props) {
                 <TopButton onClick={nextPage}>NEXT</TopButton>
             </TopButtons>
             <ReaderOuter>
-                <ReaderContainer id="aaaaaaaaaaa" ref={bookRef} />
+                <ReaderContainer ref={bookRef} />
             </ReaderOuter>
             {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>}
             {summerizedParagraphs.map((sp, index) => {
@@ -124,7 +126,7 @@ export default function NewReader(props) {
                     visible={sp.visible}
                     prev={sp.prevParagraphText}
                     next={sp.nextParagraphText}
-                    offsetLeft={bookRef.current.offsetLeft}
+                    offsetLeft={bookRef.current.offsetLeft + bookRef.current.offsetWidth}
                     offsetTop={bookRef.current.offsetTop} />
             })}
         </div>

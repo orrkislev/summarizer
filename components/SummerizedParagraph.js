@@ -2,17 +2,19 @@ import { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 
 const SummaryContainer = styled.div`
-    position: absolute;
-    background: #ffffffdd;
-    backdrop-filter: blur(1px);
+    font-family: 'CrimsonText';
+    color: mediumvioletred;
     line-height: 1.3em;
     font-weight: 600;
     font-size: 1.1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0em;
+    padding-left: 1em;
     `
 
 // side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
 const SideText = styled.div`
-    position: absolute;
     top: 0;
     left: 0;
     font-size: 13px;
@@ -23,12 +25,16 @@ const SideText = styled.div`
     `
 
 const Dot = styled.div`
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #40E0D0;
+    padding: 0.5em;
+    font-size: 0.8rem;
+    color: royalblue;
+    border-radius: 0.5em;
     transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    &:hover {
+        color: white;
+        background: royalblue;
+    }
     `
 
 
@@ -68,24 +74,20 @@ export default function SummerizedParagraphs(props) {
 
 
     const element = props.paragraph
-    const style = {
-        width: element.offsetWidth,
-        height: element.offsetHeight,
-        top: element.offsetTop + props.offsetTop + 10,
-        left: element.offsetLeft + props.offsetLeft + 10,
-    }
-
-    // if (!props.visible) return null
+    const top = element.offsetTop + props.offsetTop + 10
+    const left = props.offsetLeft + 30
 
     return (
-        <>
-        <Dot style={{top: style.top, left: style.left-30}} onClick={() => setVisible(!visible)} />
-        {visible && 
-            <SummaryContainer style={style} onMouseEnter={props.onMouseEnter}>
-                <div style={{ padding: '1em' }} ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
-                <SideText> {sideText} </SideText>
-            </SummaryContainer>
-        }
-        </>
+        <div style={{position:'absolute',top, left, width:'15em'}}>
+            <Dot onClick={() => setVisible(!visible)} > 
+            {visible ? 'Regenerate' : 'Generate'}
+            </Dot>
+            {visible && 
+                <SummaryContainer onMouseEnter={props.onMouseEnter}>
+                    <SideText> {sideText} </SideText>
+                    <div ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
+                </SummaryContainer>
+            }
+        </div>
     )
 }
