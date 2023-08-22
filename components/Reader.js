@@ -154,7 +154,7 @@ export default function Reader(props) {
 
     return (
         <>
-            {/* <Dots sum={parSum} curr={currPar - 1} onClick={index => setScrollTo(index)} /> */}
+            <Dots sum={parSum} curr={currPar - 1} onClick={index => setScrollTo(index)} />
             <div>
                 {/* <MiniMap table={tableRef} /> */}
                 <table ref={tableRef}>

@@ -2,26 +2,17 @@ import { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 
 const SummaryContainer = styled.div`
-    // font-family: 'CrimsonText';
+    width: 25vw;
     color: mediumvioletred;
     line-height: 1.3em;
-    font-weight: 600;
     font-size: 1.1em;
-    display: flex;
-    flex-direction: column;
-    gap: 0em;
-    padding-left: 1em;
     `
 
-// side text is the gist, vertical text on the right side, in italics, no wrapping, classical serif font
 const SideText = styled.div`
-    top: 0;
-    left: 0;
-    font-size: 13px;
-    font-style: italic;
-    color: cornflowerblue;
-    white-space: nowrap;
-    font-weight: 300;
+    width: 25vw;
+    color: royalblue;
+    line-height: 1.3em;
+    font-size: 1.1em;
     `
 
 const Dot = styled.div`
@@ -36,7 +27,7 @@ const Dot = styled.div`
         background: royalblue;
     }
     `
-    const GPTButtons = styled.div`
+const GPTButtons = styled.div`
     display: flex;
     flex-direction: row;
     gap: 0.5em;
@@ -63,34 +54,72 @@ const GPTButtonText = styled.span`
 
 export default function SummerizedParagraphs(props) {
     const ref = useRef(null)
-    const [summary, setSummary] = useState("")
+    const [text, setText] = useState("")
     const [sideText, setSideText] = useState("")
     const [hover, setHover] = useState(false)
     const [texts, setTexts] = useState([])
 
-    const getSummary = async () => {
-        if (summary !== "") return
-        setSummary('...')
+    const [working, setWorking] = useState(false)
+
+    const getGPT = async () => {
+        if (working) return
+        setWorking(true)
+        setText('...')
         const res = await fetch('/api/summarize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                text: props.paragraph.innerText, 
+            body: JSON.stringify({
+                text: props.paragraph.innerText,
                 html: props.paragraph.innerHTML,
                 prev: props.prev,
                 next: props.next
             })
         })
         const { text, gist } = await res.json()
-        setSummary(text)
+        setText(text)
+        setTexts([text])
         setSideText(gist)
+        setWorking(false)
+    }
+
+    const getAction = async (action) => {
+        if (working) return
+        setWorking(true)
+        setText('...')
+        const res = await fetch('/api/newSummarize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                current: text,
+                action,
+                text: props.paragraph.innerText,
+                prev: props.prev,
+                next: props.next
+            })
+        })
+        const result = await res.json()
+        setText(result.summary)
+        setTexts([...texts, result.summary])
+        setWorking(false)
     }
 
     const getLonger = async () => {
+        await getAction('longer')
     }
     const getShorter = async () => {
+        await getAction('shorter')
     }
     const getNew = async () => {
+        await getAction('new')
+    }
+
+    const lastText = () => {
+        const index = texts.indexOf(text)
+        setText(texts[(index - 1 + texts.length) % texts.length])
+    }
+    const nextText = () => {
+        const index = texts.indexOf(text)
+        setText(texts[(index + 1) % texts.length])
     }
 
 
@@ -100,18 +129,20 @@ export default function SummerizedParagraphs(props) {
     const left = props.offsetLeft + 30
 
     return (
-        <div style={{position:'absolute',top, left, width:'35vw', fontFamily:elementFontFamily}} onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
-            {sideText.length == 0 && <GPTButton onClick={getSummary}>Generate</GPTButton> }
-            {sideText.length > 0 && 
-                <SummaryContainer>
+        <div style={{ position: 'absolute', top, left, fontFamily: elementFontFamily }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+            {sideText.length == 0 && <GPTButton onClick={getGPT}>Generate</GPTButton>}
+            {sideText.length > 0 &&
+                <div style={{ display: 'flex', gap: '1.5em' }}>
+                    <SummaryContainer>
+                        <div ref={ref} dangerouslySetInnerHTML={{ __html: text }} />
+                    </SummaryContainer>
                     <SideText> {sideText} </SideText>
-                    <div ref={ref}  dangerouslySetInnerHTML={{ __html: summary }} />
-                </SummaryContainer>
+                </div>
             }
             {/* {sideText.length > 0 && hover && <Dot onClick={getSummary}>Regenerate</Dot> } */}
-            { sideText.length > 0 && hover &&
+            {sideText.length > 0 && hover &&
                 <>
-                <GPTButtons>
+                    <GPTButtons>
                         <GPTButton onClick={getLonger}>Longer</GPTButton> |
                         <GPTButton onClick={getShorter}>Shorter</GPTButton> |
                         <GPTButton onClick={getNew}>Regenerate</GPTButton>
