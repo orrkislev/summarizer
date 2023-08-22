@@ -4,15 +4,11 @@ import styled from "styled-components"
 const SummaryContainer = styled.div`
     width: 25vw;
     color: mediumvioletred;
-    line-height: 1.3em;
-    font-size: 1.1em;
     `
 
 const SideText = styled.div`
     width: 25vw;
     color: royalblue;
-    line-height: 1.3em;
-    font-size: 1.1em;
     `
 
 const Dot = styled.div`
@@ -125,11 +121,13 @@ export default function SummerizedParagraphs(props) {
 
     const element = props.paragraph
     const elementFontFamily = window.getComputedStyle(element).getPropertyValue('font-family')
-    const top = element.offsetTop + props.offsetTop + 10
+    const elementFontSize = window.getComputedStyle(element).getPropertyValue('font-size')
+    const elementLineHeight = window.getComputedStyle(element).getPropertyValue('line-height')
+    const top = element.offsetTop + props.offsetTop
     const left = props.offsetLeft + 30
 
     return (
-        <div style={{ position: 'absolute', top, left, fontFamily: elementFontFamily }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <div style={{ position: 'absolute', top, left, fontFamily: elementFontFamily, fontSize: elementFontSize, lineHeight: elementLineHeight }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             {sideText.length == 0 && <GPTButton onClick={getGPT}>Generate</GPTButton>}
             {sideText.length > 0 &&
                 <div style={{ display: 'flex', gap: '1.5em' }}>
