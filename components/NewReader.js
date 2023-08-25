@@ -23,30 +23,10 @@ const TopButton = styled.button`
     transition: all 0.1s ease-in-out;
     `
 
-const ReaderOuter = styled.div`
-    margin: 0 auto;
-    width: 100vw;
-    height: 90vh;
-    `
-
 
 const ReaderContainer = styled.div`
     width: 35vw;
-    // min-height: 90vh;
-    // box-shadow: 0 0 4px #ccc;
-    // padding: 10px 10px 0px 10px;
-    // margin: 5px auto;
-    // background: white;
-    // border-radius: 5px;
-    `
-
-const Dot = styled.div`
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: red;
-    transition: all 0.2s ease-in-out;
+    margin-bottom: 5em;
     `
 
 
@@ -63,6 +43,7 @@ export default function NewReader(props) {
     const loadBook = async () => {
         const book = new epub(props.file);
         if (bookRef.current.innerHTML === "") {
+            bookRef.current.innerHTML = " ";
             const rend = book.renderTo(bookRef.current, {
                 flow: "scrolled-doc",
                 width: "100%",
@@ -73,17 +54,18 @@ export default function NewReader(props) {
             await rend.display()
             setRendition(rend);
         }
+        props.doneLoading()
     }
 
     useEffect(() => {
         if (rendition) {
-            rendition.on('relocated', (section) => {   
+            rendition.on('relocated', (section) => {
                 if (summerizedParagraphs.length > 0) return;
                 setTimeout(() => {
                     const iframe = document.querySelector('iframe')
                     if (!iframe) return;
                     const firstChild = iframe.contentDocument.body.children[0]
-                    setMainDotPos({x:firstChild.offsetLeft, y:firstChild.offsetTop})
+                    setMainDotPos({ x: firstChild.offsetLeft, y: firstChild.offsetTop })
                     setSummerizedParagraphs(getParagraphs(iframe.contentDocument.body))
                 }, 100)
             })
@@ -113,26 +95,23 @@ export default function NewReader(props) {
                 <TopButton onClick={prevPage}>PREV</TopButton>
                 <TopButton onClick={nextPage}>NEXT</TopButton>
             </TopButtons>
-            <ReaderOuter>
+            <div style={{ position: 'relative', display: 'flex'}}>
                 <ReaderContainer ref={bookRef} />
-            </ReaderOuter>
-            {/* {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>} */}
-            {summerizedParagraphs.map((sp, index) => {
-                return <SummerizedParagraphs key={index}
-                    paragraph={sp.paragraph}
-                    visible={sp.visible}
-                    prev={sp.prevParagraphText}
-                    next={sp.nextParagraphText}
-                    offsetLeft={bookRef.current.offsetLeft + bookRef.current.offsetWidth}
-                    offsetTop={bookRef.current.offsetTop} />
-            })}
+                {/* {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>} */}
+                {summerizedParagraphs.map((sp, index) => {
+                    return <SummerizedParagraphs key={index}
+                        paragraph={sp.paragraph}
+                        prev={sp.prevParagraphText}
+                        next={sp.nextParagraphText} />
+                })}
+            </div>
         </div>
     );
 }
 
 
 
-function getParagraphs(section){
+function getParagraphs(section) {
     const paragraphsElements = section.querySelectorAll('p')
 
     const paragraphs = []
