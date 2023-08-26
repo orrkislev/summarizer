@@ -103,7 +103,9 @@ export default function SummerizedParagraphs(props) {
                         textsLength={texts.length}
                     />
                 </SummaryContainer>
-                <SideText> {sideText} </SideText>
+                <SideText> 
+                    <TextShow text={sideText} />
+                </SideText>
             </div>
         </div>
     )

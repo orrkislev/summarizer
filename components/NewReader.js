@@ -1,14 +1,15 @@
 import epub from 'epubjs';
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import SummerizedParagraphs from './SummerizedParagraph';
 
 
 const TopButtons = styled.div`
     display: flex;
-    gap: 1em;
+    gap: 5em;
     border-bottom: 1px solid #ccc;
     padding: .25em;
+    background: radial-gradient(circle at 10% 20%, #FE6B8B 30%, #FF8E53 90%), radial-gradient(circle at 90% 90%, #FF8E53 30%, #FE6B8B 90%);
     `
 const TopButton = styled.button`
     background: none;
@@ -33,11 +34,21 @@ const ReaderContainer = styled.div`
 export default function NewReader(props) {
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
-    const [mainDotPos, setMainDotPos] = useState({ x: 0, y: 0 })
     const [summerizedParagraphs, setSummerizedParagraphs] = useState([]);
 
     useEffect(() => {
         if (props.file) loadBook()
+
+        const keyEvent = (e) => {
+            if (e.key == 'ArrowRight') nextPage()
+            if (e.key == 'ArrowLeft') prevPage()
+        }
+
+        window.addEventListener('keydown', keyEvent)
+
+        return () => {
+            window.removeEventListener('keydown', keyEvent)
+        }
     }, [props.file]);
 
     const loadBook = async () => {
@@ -65,7 +76,6 @@ export default function NewReader(props) {
                     const iframe = document.querySelector('iframe')
                     if (!iframe) return;
                     const firstChild = iframe.contentDocument.body.children[0]
-                    setMainDotPos({ x: firstChild.offsetLeft, y: firstChild.offsetTop })
                     setSummerizedParagraphs(getParagraphs(iframe.contentDocument.body))
                 }, 100)
             })
@@ -83,21 +93,15 @@ export default function NewReader(props) {
         rendition.prev();
     }
 
-    const clickMainDot = () => {
-        const newSummerizedParagraphs = [...summerizedParagraphs]
-        newSummerizedParagraphs.forEach(sp => sp.visible = true)
-        setSummerizedParagraphs(newSummerizedParagraphs)
-    }
-
     return (
         <div>
             <TopButtons>
                 <TopButton onClick={prevPage}>PREV</TopButton>
                 <TopButton onClick={nextPage}>NEXT</TopButton>
             </TopButtons>
-            <div style={{ position: 'relative', display: 'flex'}}>
+
+            <div style={{ position: 'relative', display: 'flex' }}>
                 <ReaderContainer ref={bookRef} />
-                {/* {mainDotPos.x != 0 && <Dot style={{ left: mainDotPos.x + bookRef.current.offsetLeft - 15, top: mainDotPos.y + bookRef.current.offsetTop + 15 }} onClick={clickMainDot}/>} */}
                 {summerizedParagraphs.map((sp, index) => {
                     return <SummerizedParagraphs key={index}
                         paragraph={sp.paragraph}
