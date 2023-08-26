@@ -1,7 +1,7 @@
 import NewReader from '@/components/NewReader';
 import NoSsrWrapper from '@/components/NoSSRWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 
@@ -29,29 +29,8 @@ const Card = styled.div`
   }
 `
 
-
-const FileUpload = styled.input`
-    display: none;
-  `;
-const FileUploadLabel = styled.label`
-    cursor: pointer;
-    padding: 0.5em 1em;
-    border-radius: 5px;
-    font-family: 'CrimsonText', serif;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: crimson;
-    border: 2px solid crimson;
-    transition: all 0.1s ease-in-out;
-    &:hover {
-      background-color: crimson;
-      color: white;
-    }
-  `;
-
-
-export default function epubPage() {
-  const [epubFile, setEpubFile] = useState(null);
+export default function EpubPage() {
+  const [epubFile, setEpubFile] = useState(null)
   const [readyToRead, setReadyToRead] = useState(false);
 
   const handleFileUpload = (e) => {
@@ -71,10 +50,7 @@ export default function epubPage() {
               <FakeWords />
               :
               <Card>
-                <FileUploadLabel htmlFor="file-upload">
-                  Upload .epub file
-                </FileUploadLabel>
-                <FileUpload id="file-upload" type="file" onChange={handleFileUpload} />
+                <FileUpload onChange={handleFileUpload} />
               </Card>
             }
           </BG>
@@ -84,6 +60,8 @@ export default function epubPage() {
     </NoSsrWrapper>
   )
 }
+
+
 
 
 
@@ -135,5 +113,39 @@ function FakeWords() {
         })}
       </Loader>
     </LoaderContainer>
+  )
+}
+
+
+
+
+
+
+
+const FileUploadLabel = styled.label`
+    cursor: pointer;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    font-family: 'CrimsonText', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: crimson;
+    border: 2px solid crimson;
+    transition: all 0.1s ease-in-out;
+    &:hover {
+      background-color: crimson;
+      color: white;
+    }
+  `;
+
+
+function FileUpload(props) {
+  return (
+    <>
+      <FileUploadLabel htmlFor="file-upload">
+        Upload .epub file
+      </FileUploadLabel>
+      <input style={{display:'none'}} id="file-upload" type="file" onChange={props.onChange} />
+    </>
   )
 }
