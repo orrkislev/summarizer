@@ -24,9 +24,10 @@ export default async function handler(req, res) {
         prompt += `Summarize the paragraph above in more words.`
     }
 
+    const model = req.body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
 
     const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model,
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": "You Summarize paragraphs from a book. give me only the summary and nothing else, dont respond with 'this paragraph'." },

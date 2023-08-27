@@ -14,9 +14,10 @@ export default async function handler(req, res) {
 
     prompt += 'format your answer like this: summary:(summary), gist: (maximum 3 words)'
 
+    const model = req.body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
 
     const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
+        model,
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags. give me only the summary and nothing else." },

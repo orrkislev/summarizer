@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 import TextShow from "./TextShow"
 
@@ -21,6 +21,10 @@ export default function SummerizedParagraphs(props) {
 
     const [working, setWorking] = useState(false)
 
+    useEffect(()=>{
+        if (props.apply && !text) getGPT()
+    }, [props.apply])
+
     const getGPT = async () => {
         if (working) return
         setWorking(true)
@@ -32,7 +36,8 @@ export default function SummerizedParagraphs(props) {
                 text: props.paragraph.innerText,
                 html: props.paragraph.innerHTML,
                 prev: props.prev,
-                next: props.next
+                next: props.next,
+                use4: props.use4,
             })
         })
         const { text, gist } = await res.json()
@@ -54,7 +59,8 @@ export default function SummerizedParagraphs(props) {
                 action,
                 text: props.paragraph.innerText,
                 prev: props.prev,
-                next: props.next
+                next: props.next,
+                use4: props.use4,
             })
         })
         const result = await res.json()
@@ -78,8 +84,7 @@ export default function SummerizedParagraphs(props) {
     const style = {
         position: 'absolute',
         top: element.offsetTop,
-        left: element.getBoundingClientRect().right + 30,
-        fontFamily: elementStyle.getPropertyValue('font-family'),
+        left: props.offset,
         fontSize: elementStyle.getPropertyValue('font-size'),
         lineHeight: elementStyle.getPropertyValue('line-height')
     }
@@ -91,7 +96,7 @@ export default function SummerizedParagraphs(props) {
                     <TextShow text={text} />
                     <SummaryActions
                         hover={hover}
-                        extended={sideText.length > 0}
+                        extended={text.length > 0}
                         withArrows={texts.length > 1}
                         get={getGPT}
                         longer={() => getAction('longer')}

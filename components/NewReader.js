@@ -4,17 +4,24 @@ import styled from 'styled-components';
 import SummerizedParagraphs from './SummerizedParagraph';
 
 
-const TopButtons = styled.div`
+const TopBar = styled.div`
+    z-index: 100;
+    position: fixed;
     display: flex;
-    gap: 5em;
-    border-bottom: 1px solid #ccc;
+    justify-content: space-between;
+    width: 100%;
     padding: .25em;
     background: radial-gradient(circle at 10% 20%, #FE6B8B 30%, #FF8E53 90%), radial-gradient(circle at 90% 90%, #FF8E53 30%, #FE6B8B 90%);
+    border-bottom: 1px solid #ccc;
     `
-const TopButton = styled.button`
-    background: none;
+
+const TopButtons = styled.div`
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    `
+const TopButton = styled.div`
     padding: .25em .5em;
-    border: none;
     cursor: pointer;
     border-radius: 5px;
     &:hover {
@@ -22,10 +29,17 @@ const TopButton = styled.button`
         color: white;
     }
     transition: all 0.1s ease-in-out;
+
+    ${props => props.active && `
+        background: #ffffff88;
+    }`}
+
     `
 
 
 const ReaderContainer = styled.div`
+    z-index: 1;
+    position: relative;
     width: 35vw;
     margin-bottom: 5em;
     `
@@ -34,25 +48,19 @@ const ReaderContainer = styled.div`
 export default function NewReader(props) {
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
-    const [summerizedParagraphs, setSummerizedParagraphs] = useState([]);
+    const bookData = useRef(null);
+    const [sectionData, setSectionData] = useState({
+        paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: '' })
+    const [use4, setUse4] = useState(false)
+    const [applyToAll, setApplyToAll] = useState(false)
 
     useEffect(() => {
         if (props.file) loadBook()
-
-        const keyEvent = (e) => {
-            if (e.key == 'ArrowRight') nextPage()
-            if (e.key == 'ArrowLeft') prevPage()
-        }
-
-        window.addEventListener('keydown', keyEvent)
-
-        return () => {
-            window.removeEventListener('keydown', keyEvent)
-        }
     }, [props.file]);
 
     const loadBook = async () => {
         const book = new epub(props.file);
+        bookData.current = book;
         if (bookRef.current.innerHTML === "") {
             bookRef.current.innerHTML = " ";
             const rend = book.renderTo(bookRef.current, {
@@ -60,7 +68,6 @@ export default function NewReader(props) {
                 width: "100%",
                 height: "100%",
             })
-            rend.themes.register("new", "/readerTheme.css");
             rend.themes.select("new");
             await rend.display()
             setRendition(rend);
@@ -71,12 +78,8 @@ export default function NewReader(props) {
     useEffect(() => {
         if (rendition) {
             rendition.on('relocated', (section) => {
-                if (summerizedParagraphs.length > 0) return;
                 setTimeout(() => {
-                    const iframe = document.querySelector('iframe')
-                    if (!iframe) return;
-                    const firstChild = iframe.contentDocument.body.children[0]
-                    setSummerizedParagraphs(getParagraphs(iframe.contentDocument.body))
+                    setSectionData(getSectionData(section, bookData.current))
                 }, 100)
             })
         }
@@ -85,28 +88,39 @@ export default function NewReader(props) {
     if (!props.file) return null;
 
     const nextPage = () => {
-        setSummerizedParagraphs([])
+        setSectionData({...sectionData, paragraphs:[]})   
         rendition.next();
     }
     const prevPage = () => {
-        setSummerizedParagraphs([])
+        setSectionData({...sectionData, paragraphs:[]})   
         rendition.prev();
     }
 
     return (
         <div>
-            <TopButtons>
-                <TopButton onClick={prevPage}>PREV</TopButton>
-                <TopButton onClick={nextPage}>NEXT</TopButton>
-            </TopButtons>
+            <TopBar style={{fontFamily:sectionData.font}}>
+                <TopButtons style={{ width: bookRef.current?.getBoundingClientRect().width }}>
+                    <TopButton onClick={prevPage}>PREV</TopButton>
+                    {sectionData.label}
+                    <TopButton onClick={nextPage}>NEXT</TopButton>
+                </TopButtons>
+                <TopButtons style={{marginRight:'2em'}}>
+                    <TopButton active={use4} onClick={()=>setUse4(!use4)}>{use4 ? 'GPT-4' : 'GPT-3.5'}</TopButton>
+                    <TopButton active={applyToAll} onClick={()=>setApplyToAll(!applyToAll)}>{applyToAll ? 'Apply to all' : 'one by one'}</TopButton>
+                </TopButtons>
+            </TopBar>
 
-            <div style={{ position: 'relative', display: 'flex' }}>
+            <div style={{ position: 'relative', display: 'flex', fontFamily:sectionData.font}}>
                 <ReaderContainer ref={bookRef} />
-                {summerizedParagraphs.map((sp, index) => {
+                {sectionData.paragraphs.map((sp, index) => {
                     return <SummerizedParagraphs key={index}
+                        offset={sectionData.contentRight + sectionData.contentLeft}
                         paragraph={sp.paragraph}
                         prev={sp.prevParagraphText}
-                        next={sp.nextParagraphText} />
+                        next={sp.nextParagraphText} 
+                        use4={use4}
+                        apply={applyToAll}
+                        />
                 })}
             </div>
         </div>
@@ -115,13 +129,14 @@ export default function NewReader(props) {
 
 
 
-function getParagraphs(section) {
-    const paragraphsElements = section.querySelectorAll('p')
+function getParagraphs() {
+    const iframe = document.querySelector('iframe')
+    if (!iframe) return [];
+
+    const paragraphsElements = iframe.contentDocument.body.querySelectorAll('p')
 
     const paragraphs = []
-    // Array.from(section.children).forEach((p, i) => {
     paragraphsElements.forEach((p, i) => {
-        // if (p.tagName == 'SECTION') paragraphs.push(...getParagraphs(p))
         const parText = p.innerText
         const words = parText.split(' ')
         if (words.length < 50) return;
@@ -132,5 +147,39 @@ function getParagraphs(section) {
             visible: false
         })
     })
-    return paragraphs
+    // const mainElement = paragraphs.length > 0 ? paragraphs[0].paragraph : iframe.contentDocument.body
+    const mainElement = iframe.contentDocument.body
+    return [paragraphs, mainElement]
+}
+
+function getSectionData(section, book) {
+    // ------------------ get paragraphs ------------------
+    const [paragraphs, mainElement] = getParagraphs()
+
+    // ------------------ get content dimensions ------------------
+    let contentLeft = paragraphs.reduce((min, p) => {
+        const left = p.paragraph.getBoundingClientRect().left
+        return Math.min(min, left)
+    }, paragraphs.length > 0 ? 10000 : mainElement.getBoundingClientRect().left)
+    let contentRight = paragraphs.reduce((max, p) => {
+        const right = p.paragraph.getBoundingClientRect().right
+        return Math.max(max, right)
+    }, paragraphs.length > 0 ? 0 : mainElement.getBoundingClientRect().right)
+
+    // ------------------ get font ------------------
+    const font = window.getComputedStyle(mainElement).getPropertyValue('font-family')
+
+    // ------------------ get section label ------------------
+    const sectionURL = section.start.href
+    let loc = null
+    book.navigation.toc.forEach(t => {
+        if (t.href == sectionURL) loc = t
+        if (t.subitems.length > 0)
+            t.subitems.forEach(st => {
+                if (st.href == sectionURL) loc = st
+            })
+    })
+    const label = loc ? loc.label : ''
+
+    return { paragraphs, contentLeft, contentRight, font, label }
 }

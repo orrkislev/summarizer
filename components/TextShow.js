@@ -16,10 +16,11 @@ export default function TextShow({ text }) {
     }, [text, inView])
 
     const showText = async (text) => {
+        if (!text || text === '') return
         setLoading(true)
         const words = text.split(' ')
         for (let i = 0; i < words.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 80 + 40))
             setCurrText(words.slice(0, i + 1).join(' '))
         }
         setLoading(false)
