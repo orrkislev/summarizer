@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import styled from "styled-components"
 import TextShow from "./TextShow"
+import { LoaderAnim } from "./Reader"
 
 const SummaryContainer = styled.div`
     flex:1;
     text-align: justify;
     color: mediumvioletred;
+    margin-right: 2em;
     `
 
 const SideText = styled.div`
@@ -21,7 +23,7 @@ export default function SummerizedParagraphs(props) {
 
     const [working, setWorking] = useState(false)
 
-    useEffect(()=>{
+    useEffect(() => {
         if (props.apply && !text) getGPT()
     }, [props.apply])
 
@@ -81,19 +83,21 @@ export default function SummerizedParagraphs(props) {
 
     const element = props.paragraph
     const elementStyle = window.getComputedStyle(element)
+    const fontSize = elementStyle.getPropertyValue('font-size').split('px')[0]
+    const lineHeight = elementStyle.getPropertyValue('line-height').split('px')[0]
     const style = {
         position: 'absolute',
-        top: element.offsetTop,
+        top: element.offsetTop + props.topOffset,
         left: props.offset,
-        fontSize: elementStyle.getPropertyValue('font-size'),
-        lineHeight: elementStyle.getPropertyValue('line-height')
+        fontSize: fontSize * 1.2 + 'px',
+        lineHeight: lineHeight * 1.2 + 'px',
     }
 
     return (
         <div style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={{ display: 'flex', gap: '30px', width: '60vw' }}>
-                <SummaryContainer>
-                    <TextShow text={text} />
+                <SummaryContainer style={{ width: props.width }} >
+                    {text == '...' ? <LoaderAnim /> : <TextShow text={text} />}
                     <SummaryActions
                         hover={hover}
                         extended={text.length > 0}
@@ -108,7 +112,7 @@ export default function SummerizedParagraphs(props) {
                         textsLength={texts.length}
                     />
                 </SummaryContainer>
-                <SideText> 
+                <SideText>
                     <TextShow text={sideText} />
                 </SideText>
             </div>

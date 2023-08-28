@@ -255,7 +255,7 @@ function Row(props) {
             <ID ref={myRef}>{props.index}</ID>
             <OrigText dangerouslySetInnerHTML={{ __html: props.row[0] }} />
             <GPTText onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-                {text.length > 0 ? <TextShow text={text} /> : <Loader />}
+                {text.length > 0 ? <TextShow text={text} /> : <LoaderAnim />}
                 {hover &&
                     <GPTButtons>
                         <GPTButton onClick={getLonger}>Longer</GPTButton> |
@@ -281,7 +281,7 @@ function Row(props) {
 
 
 
-function Loader() {
+export function LoaderAnim() {
     return (
         <div className="lds-ellipsis"><div></div><div></div><div></div><div></div>
             <style jsx>{`

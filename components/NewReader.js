@@ -8,6 +8,7 @@ const TopBar = styled.div`
     z-index: 100;
     position: fixed;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: .25em;
@@ -18,6 +19,7 @@ const TopBar = styled.div`
 const TopButtons = styled.div`
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 1em;
     `
 const TopButton = styled.div`
@@ -38,6 +40,7 @@ const TopButton = styled.div`
 
 
 const ReaderContainer = styled.div`
+    margin-top: 3em;
     z-index: 1;
     position: relative;
     width: 35vw;
@@ -100,9 +103,9 @@ export default function NewReader(props) {
         <div>
             <TopBar style={{fontFamily:sectionData.font}}>
                 <TopButtons style={{ width: bookRef.current?.getBoundingClientRect().width }}>
-                    <TopButton onClick={prevPage}>PREV</TopButton>
+                    <TopButton onClick={prevPage}>prev</TopButton>
                     {sectionData.label}
-                    <TopButton onClick={nextPage}>NEXT</TopButton>
+                    <TopButton onClick={nextPage}>next</TopButton>
                 </TopButtons>
                 <TopButtons style={{marginRight:'2em'}}>
                     <TopButton active={use4} onClick={()=>setUse4(!use4)}>{use4 ? 'GPT-4' : 'GPT-3.5'}</TopButton>
@@ -110,11 +113,13 @@ export default function NewReader(props) {
                 </TopButtons>
             </TopBar>
 
-            <div style={{ position: 'relative', display: 'flex', fontFamily:sectionData.font}}>
+            <div style={{ position: 'relative', display: 'flex', fontFamily:sectionData.font }}>
                 <ReaderContainer ref={bookRef} />
                 {sectionData.paragraphs.map((sp, index) => {
                     return <SummerizedParagraphs key={index}
                         offset={sectionData.contentRight + sectionData.contentLeft}
+                        width={sectionData.contentRight - sectionData.contentLeft}
+                        topOffset = {bookRef.current.getBoundingClientRect().top}
                         paragraph={sp.paragraph}
                         prev={sp.prevParagraphText}
                         next={sp.nextParagraphText} 
