@@ -16,18 +16,28 @@ export default async function handler(req, res) {
 
     const model = req.body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
 
-    const response = await openai.createChatCompletion({
+    const completion = openai.createChatCompletion({
         model,
         messages: [
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": "Summarize paragraphs from a book. they may contain html tags. give me only the summary and nothing else." },
-            { "role": "user", "content":  prompt },
-        ]
+            { "role": "user", "content": prompt },
+        ],
+        stream: true
     });
 
-    let answer = response.data.choices[0].message.content
-    answer = answer.replace('Gist:', 'gist:').replace('Summary:', 'summary:')
-    const summary = answer.split('summary:')[1].split('gist:')[0]
-    const gist = answer.split('gist:')[1]
-    res.status(200).json({ text: summary, gist })
+    console.log(typeof completion)
+    Object.keys(completion).forEach(key => console.log(key))
+    console.log(completion)
+
+    res.status(200).json({ text:'blah', gist:'blah' })
 }
+
+
+
+    // let answer = completion.data.choices[0].message.content
+    // answer = answer.replace('Gist:', 'gist:').replace('Summary:', 'summary:')
+    // const summary = answer.split('summary:')[1].split('gist:')[0]
+    // const gist = answer.split('gist:')[1]
+    // res.status(200).json({ text: summary, gist })
+// }

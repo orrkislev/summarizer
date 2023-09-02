@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import styled from "styled-components"
 import TextShow from "./TextShow"
 import { LoaderAnim } from "./Reader"
+import useStreamState from "@/utils/useStreamState"
 
 const SummaryContainer = styled.div`
     flex:1;
@@ -16,8 +17,10 @@ const SideText = styled.div`
     `
 
 export default function SummerizedParagraphs(props) {
-    const [text, setText] = useState("")
-    const [sideText, setSideText] = useState("")
+    const [text, getText, setText] = useStreamState("", newText => {
+        setTexts([...texts, newText])
+    })
+    const [gist, getGist, setGist] = useStreamState("")
     const [hover, setHover] = useState(false)
     const [texts, setTexts] = useState([])
 
@@ -27,33 +30,10 @@ export default function SummerizedParagraphs(props) {
         if (props.apply && !text) getGPT()
     }, [props.apply])
 
-    const getGPT = async () => {
-        if (working) return
-        setWorking(true)
-        setText('...')
-        const res = await fetch('/api/summarize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text: props.paragraph.innerText,
-                html: props.paragraph.innerHTML,
-                prev: props.prev,
-                next: props.next,
-                use4: props.use4,
-            })
-        })
-        const { text, gist } = await res.json()
-        setText(text)
-        setTexts([text])
-        setSideText(gist)
-        setWorking(false)
-    }
-
     const getAction = async (action) => {
         if (working) return
         setWorking(true)
-        setText('...')
-        const res = await fetch('/api/newSummarize', {
+        const res = await fetch('/api/summerize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -65,10 +45,25 @@ export default function SummerizedParagraphs(props) {
                 use4: props.use4,
             })
         })
-        const result = await res.json()
-        setText(result.summary)
-        setTexts([...texts, result.summary])
+
+        getText(res)
         setWorking(false)
+
+        if (action == 'new' && gist.length == 0) {
+            const res = await fetch('/api/summerize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    current: text,
+                    action: 'gist',
+                    text: props.paragraph.innerText,
+                    prev: props.prev,
+                    next: props.next,
+                    use4: props.use4,
+                })
+            })
+            getGist(res)
+        }
     }
 
     const lastText = () => {
@@ -97,12 +92,12 @@ export default function SummerizedParagraphs(props) {
         <div style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={{ display: 'flex', gap: '30px', width: '60vw' }}>
                 <SummaryContainer style={{ width: props.width }} >
-                    {text == '...' ? <LoaderAnim /> : <TextShow text={text} />}
+                    {working ? <LoaderAnim /> : text}
                     <SummaryActions
                         hover={hover}
                         extended={text.length > 0}
                         withArrows={texts.length > 1}
-                        get={getGPT}
+                        get={() => getAction('new')}
                         longer={() => getAction('longer')}
                         shorter={() => getAction('shorter')}
                         new={() => getAction('new')}
@@ -113,7 +108,7 @@ export default function SummerizedParagraphs(props) {
                     />
                 </SummaryContainer>
                 <SideText>
-                    <TextShow text={sideText} />
+                    {gist}
                 </SideText>
             </div>
         </div>

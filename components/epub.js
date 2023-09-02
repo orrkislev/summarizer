@@ -1,3 +1,5 @@
+'use client';
+
 import NewReader from '@/components/NewReader';
 import NoSsrWrapper from '@/components/NoSSRWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
