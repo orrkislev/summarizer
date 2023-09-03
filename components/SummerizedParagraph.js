@@ -3,6 +3,7 @@ import styled from "styled-components"
 import TextShow from "./TextShow"
 import { LoaderAnim } from "./Reader"
 import useStreamState from "@/utils/useStreamState"
+import { getStreamWords } from "@/utils/StreamUtils"
 
 const SummaryContainer = styled.div`
     flex:1;
@@ -17,10 +18,12 @@ const SideText = styled.div`
     `
 
 export default function SummerizedParagraphs(props) {
-    const [text, getText, setText] = useStreamState("", newText => {
-        setTexts([...texts, newText])
-    })
-    const [gist, getGist, setGist] = useStreamState("")
+    // const [text, getText, setText] = useStreamState("", newText => {
+    //     setTexts([...texts, newText])
+    // })
+    // const [gist, getGist, setGist] = useStreamState("")
+    const [text, setText] = useState("")
+    const [gist, setGist] = useState("")
     const [hover, setHover] = useState(false)
     const [texts, setTexts] = useState([])
 
@@ -46,24 +49,29 @@ export default function SummerizedParagraphs(props) {
             })
         })
 
-        getText(res)
-        setWorking(false)
+        let streamText = ''
+        let target
+        getStreamWords(res, 
+            (word) => {
+                streamText += word
+                if (streamText.startsWith('GIST:')) {
+                    target = 'gist'
+                    streamText = ''
+                } else if (streamText.endsWith('SUMMARY:')) {
+                    streamText = streamText.slice(0, -9)
+                    setGist(streamText)
+                    target = 'summary'
+                    streamText = ''
+                } else {
+                    if (target == 'gist') setGist(streamText)
+                    if (target == 'summary') setText(streamText)
+                }
+            },
+            () => setTexts([...texts, text])
+        )
 
-        if (action == 'new' && gist.length == 0) {
-            const res = await fetch('/api/summerize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    current: text,
-                    action: 'gist',
-                    text: props.paragraph.innerText,
-                    prev: props.prev,
-                    next: props.next,
-                    use4: props.use4,
-                })
-            })
-            getGist(res)
-        }
+        // getText(res)
+        setWorking(false)
     }
 
     const lastText = () => {

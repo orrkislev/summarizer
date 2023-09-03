@@ -18,6 +18,10 @@ export async function POST(req) {
     if (action == 'new') {
         const targetWords = Math.round(body.text.split(' ').length / 3)
         prompt += `Summarize the paragraph above in ${targetWords} words.`
+
+        prompt += 'format your response like this: /n'
+        prompt += 'GIST: [shorter, up to 5 words] /n'
+        prompt += 'SUMMARY: [your summary] /n'
     }
     if (action == 'shorter') {
         prompt = `make this text a bit shorter: ${body.current}`
@@ -25,9 +29,6 @@ export async function POST(req) {
     if (action == 'longer') {
         prompt += `The Current Summary is this: ${body.current} /n`
         prompt += `Summarize the paragraph above in more words.`
-    }
-    if (action == 'gist') {
-        prompt += `Summarize the paragraph above in up to 5 words.`
     }
 
     const model = body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
