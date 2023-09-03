@@ -13,7 +13,6 @@ export async function getStreamWords(fetchRes, onWord = () => { }, onDone = () =
 
             const json = JSON.parse(t);
             const content = json.choices[0].delta.content;
-            console.log(content)
             if (content) onWord(content);
         })
     }

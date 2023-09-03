@@ -60,6 +60,7 @@ export default function SummerizedParagraphs(props) {
                 } else if (streamText.endsWith('SUMMARY:')) {
                     streamText = streamText.slice(0, -9)
                     setGist(streamText)
+                    setWorking(false)
                     target = 'summary'
                     streamText = ''
                 } else {
@@ -67,11 +68,12 @@ export default function SummerizedParagraphs(props) {
                     if (target == 'summary') setText(streamText)
                 }
             },
-            () => setTexts([...texts, text])
-        )
+            () => {
+                setTexts([...texts, text])
+            })
 
         // getText(res)
-        setWorking(false)
+        // setWorking(false)
     }
 
     const lastText = () => {
@@ -103,7 +105,7 @@ export default function SummerizedParagraphs(props) {
                     {working ? <LoaderAnim /> : text}
                     <SummaryActions
                         hover={hover}
-                        extended={text.length > 0}
+                        extended={text.length > 0 || gist.length > 0 || working}
                         withArrows={texts.length > 1}
                         get={() => getAction('new')}
                         longer={() => getAction('longer')}

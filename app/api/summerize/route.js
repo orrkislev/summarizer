@@ -20,8 +20,8 @@ export async function POST(req) {
         prompt += `Summarize the paragraph above in ${targetWords} words.`
 
         prompt += 'format your response like this: /n'
-        prompt += 'GIST: [shorter, up to 5 words] /n'
-        prompt += 'SUMMARY: [your summary] /n'
+        prompt += 'GIST: [very brief, 5 words] /n'
+        prompt += 'SUMMARY: [your full summary] /n'
     }
     if (action == 'shorter') {
         prompt = `make this text a bit shorter: ${body.current}`
