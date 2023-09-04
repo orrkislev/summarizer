@@ -1,6 +1,7 @@
 export async function getStreamWords(fetchRes, onWord = () => { }, onDone = () => { }) {
     const reader = fetchRes.body.getReader();
     const decoder = new TextDecoder();
+    let lastPartlyJson = null
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -23,19 +24,29 @@ export async function getStreamWords(fetchRes, onWord = () => { }, onDone = () =
         // }
 
         const txt = decoder.decode(value)
-        console.log('------- new chunk -------')
-        console.log('decoded -', txt)
-        const txts = txt.split('\n').filter(x => x.startsWith('data:'))
+        // console.log('------- new chunk -------')
+        // console.log('decoded -', txt)
+        // const txts = txt.split('\n').filter(x => x.startsWith('data:')).map(t => t.slice(6))
+        const txts = txt.split('\n').filter(t => t.length > 0).map(t => t.slice(6))
+        if (lastPartlyJson) {
+            txts[0] = lastPartlyJson + txts[0]
+            lastPartlyJson = null
+        }
         console.log('txts -', txts)
         txts.forEach(t => {
-            console.log('t -', t)
-            t = t.slice(6)
-            console.log('t sliced -', t)
+            // console.log('t -', t)
+            // console.log('t sliced -', t)
             if (t == '[DONE]') return;
 
-            const json = JSON.parse(t);
-            const content = json.choices[0].delta.content;
-            if (content) onWord(content);
+            try {
+                const json = JSON.parse(t);
+                const content = json.choices[0].delta.content;
+                if (content) onWord(content);
+
+            } catch (e) {
+                // console.error('failed to parse json -', t)
+                lastPartlyJson = t
+            }
         })
     }
     onDone()
