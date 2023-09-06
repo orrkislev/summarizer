@@ -53,13 +53,36 @@ export default function NewReader(props) {
     const bookRef = useRef(null);
     const bookData = useRef(null);
     const [sectionData, setSectionData] = useState({
-        paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: '' })
+        paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
+    })
     const [use4, setUse4] = useState(false)
     const [applyToAll, setApplyToAll] = useState(false)
 
     useEffect(() => {
         if (props.file) loadBook()
     }, [props.file]);
+
+    useEffect(() => {
+        if (rendition) {
+            rendition.on('relocated', (section) => {
+                setTimeout(() => {
+                    setSectionData(getSectionData(section, bookData.current))
+                }, 100)
+            })
+
+            const keyListener = (e) => {
+                if (e.key == 'ArrowRight') nextPage()
+                if (e.key == 'ArrowLeft') prevPage()
+            }
+            document.addEventListener('keydown', keyListener)
+            return () => document.removeEventListener('keydown', keyListener)
+        }
+    }, [rendition])
+
+
+
+
+
 
     const loadBook = async () => {
         const book = new epub(props.file);
@@ -78,54 +101,44 @@ export default function NewReader(props) {
         props.doneLoading()
     }
 
-    useEffect(() => {
-        if (rendition) {
-            rendition.on('relocated', (section) => {
-                setTimeout(() => {
-                    setSectionData(getSectionData(section, bookData.current))
-                }, 100)
-            })
-        }
-    }, [rendition])
-
     if (!props.file) return null;
 
     const nextPage = () => {
-        setSectionData({...sectionData, paragraphs:[]})   
+        setSectionData({ ...sectionData, paragraphs: [] })
         rendition.next();
     }
     const prevPage = () => {
-        setSectionData({...sectionData, paragraphs:[]})   
+        setSectionData({ ...sectionData, paragraphs: [] })
         rendition.prev();
     }
 
     return (
         <div>
-            <TopBar style={{fontFamily:sectionData.font}}>
+            <TopBar style={{ fontFamily: sectionData.font }}>
                 <TopButtons style={{ width: bookRef.current?.getBoundingClientRect().width }}>
                     <TopButton onClick={prevPage}>prev</TopButton>
                     {sectionData.label}
                     <TopButton onClick={nextPage}>next</TopButton>
                 </TopButtons>
-                <TopButtons style={{marginRight:'2em'}}>
-                    <TopButton active={use4} onClick={()=>setUse4(!use4)}>{use4 ? 'GPT-4' : 'GPT-3.5'}</TopButton>
-                    <TopButton active={applyToAll} onClick={()=>setApplyToAll(!applyToAll)}>{applyToAll ? 'Apply to all' : 'one by one'}</TopButton>
+                <TopButtons style={{ marginRight: '2em' }}>
+                    <TopButton active={use4} onClick={() => setUse4(!use4)}>{use4 ? 'GPT-4' : 'GPT-3.5'}</TopButton>
+                    <TopButton active={applyToAll} onClick={() => setApplyToAll(!applyToAll)}>{applyToAll ? 'Apply to all' : 'one by one'}</TopButton>
                 </TopButtons>
             </TopBar>
 
-            <div style={{ position: 'relative', display: 'flex', fontFamily:sectionData.font }}>
+            <div style={{ position: 'relative', display: 'flex', fontFamily: sectionData.font }}>
                 <ReaderContainer ref={bookRef} />
                 {sectionData.paragraphs.map((sp, index) => {
                     return <SummerizedParagraphs key={index}
                         offset={sectionData.contentRight + sectionData.contentLeft}
                         width={sectionData.contentRight - sectionData.contentLeft}
-                        topOffset = {bookRef.current.getBoundingClientRect().top}
+                        topOffset={bookRef.current.getBoundingClientRect().top}
                         paragraph={sp.paragraph}
                         prev={sp.prevParagraphText}
-                        next={sp.nextParagraphText} 
+                        next={sp.nextParagraphText}
                         use4={use4}
                         apply={applyToAll}
-                        />
+                    />
                 })}
             </div>
         </div>

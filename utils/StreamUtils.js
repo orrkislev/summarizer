@@ -32,7 +32,7 @@ export async function getStreamWords(fetchRes, onWord = () => { }, onDone = () =
             txts[0] = lastPartlyJson + txts[0]
             lastPartlyJson = null
         }
-        console.log('txts -', txts)
+        // console.log('txts -', txts)
         txts.forEach(t => {
             // console.log('t -', t)
             // console.log('t sliced -', t)
