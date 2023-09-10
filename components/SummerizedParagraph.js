@@ -30,7 +30,7 @@ export default function SummerizedParagraphs(props) {
     const [working, setWorking] = useState(false)
 
     useEffect(() => {
-        if (props.apply && !text) getGPT()
+        if (props.apply && !text) getAction('new')
     }, [props.apply])
 
     const getAction = async (action) => {
@@ -54,7 +54,7 @@ export default function SummerizedParagraphs(props) {
         getStreamWords(res, 
             (word) => {
                 streamText += word
-                if (streamText.startsWith('GIST:')) {
+                if (streamText.startsWith('TITLE:')) {
                     target = 'gist'
                     streamText = ''
                 } else if (streamText.endsWith('SUMMARY:')) {
@@ -144,6 +144,17 @@ const GPTButton = styled.div`
         color: white;
     }
     transition: all 0.1s ease-in-out;
+
+    ${props => props.disabled && `
+        color: lightgray;
+        cursor: not-allowed;
+        pointer-events: none;
+        &:hover {
+            outline: none;
+            background-color: transparent;
+            color: lightgray;
+        }
+    `}
     `
 const GPTButtonText = styled.span`
     color: royalblue;
@@ -155,8 +166,8 @@ function SummaryActions(props) {
 
     if (props.hover) return (
         <GPTButtons>
-            <GPTButton onClick={props.longer}>Longer</GPTButton> |
-            <GPTButton onClick={props.shorter}>Shorter</GPTButton> |
+            <GPTButton disabled onClick={props.longer}>Longer</GPTButton> |
+            <GPTButton disabled onClick={props.shorter}>Shorter</GPTButton> |
             <GPTButton onClick={props.new}>Regenerate</GPTButton>
             {props.withArrows && (
                 <>

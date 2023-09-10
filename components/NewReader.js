@@ -55,7 +55,7 @@ export default function NewReader(props) {
     const [sectionData, setSectionData] = useState({
         paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
     })
-    const [use4, setUse4] = useState(false)
+    const [use4, setUse4] = useState(true)
     const [applyToAll, setApplyToAll] = useState(false)
 
     useEffect(() => {
