@@ -2,6 +2,7 @@ import epub from 'epubjs';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import SummerizedParagraphs from './SummerizedParagraph';
+import Cookies from 'js-cookie';
 
 
 const TopBar = styled.div`
@@ -97,6 +98,7 @@ export default function NewReader(props) {
             rend.themes.select("new");
             await rend.display()
             setRendition(rend);
+            goToLastSection(book)
         }
         props.doneLoading()
     }
@@ -197,7 +199,23 @@ function getSectionData(section, book) {
                 if (st.href == sectionURL) loc = st
             })
     })
+    Cookies.set('lastSection', section.start.href)
     const label = loc ? loc.label : ''
 
     return { paragraphs, contentLeft, contentRight, font, label }
+}
+
+
+function goToLastSection(book) {
+    const lastSection = Cookies.get('lastSection')
+    console.log('looking for', lastSection)
+    if (lastSection) {
+        book.navigation.toc.forEach(t => {
+            if (t.href == lastSection) book.rendition.display(t.href)
+            if (t.subitems.length > 0)
+                t.subitems.forEach(st => {
+                    if (st.href == lastSection) book.rendition.display(st.href)
+                })
+        })
+    }
 }
