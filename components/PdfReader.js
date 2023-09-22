@@ -17,12 +17,13 @@ export default function PDFReader(props) {
         PDFJS.getDocument(fileURl).promise.then((pdf) => {
             props.doneLoading()
             pdfRef.current = pdf
-            setPageNum(14)
+            setPageNum(1)
         })
     }, [props.file])
 
     useEffect(() => {
         if (pdfRef.current) {
+            setParagraphs([])
             pdfRef.current.getPage(pageNum).then((page) => {
                 const canvas = canvasRef.current
                 const canvasContext = canvas.getContext('2d')
@@ -126,7 +127,7 @@ function getBlocks(textContent) {
         const thisLine = lines[i]
         const prevLine = lines[i - 1]
         if (prevLine.done) continue
-        if (thisLine.top < prevLine.bottom + prevLine.lineheight && thisLine.top > prevLine.bottom - prevLine.lineheight) {
+        if (thisLine.top < prevLine.bottom + prevLine.lineheight * 1.8 && thisLine.top > prevLine.bottom - prevLine.lineheight) {
             prevLine.items.push(...thisLine.items)
             prevLine.bottom = Math.max(prevLine.bottom, thisLine.bottom)
             prevLine.left = Math.min(prevLine.left, thisLine.left)
