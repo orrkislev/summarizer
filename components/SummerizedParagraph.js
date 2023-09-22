@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import styled from "styled-components"
-import TextShow from "./TextShow"
 import { LoaderAnim } from "./Reader"
-import useStreamState from "@/utils/useStreamState"
 import { getStreamWords } from "@/utils/StreamUtils"
+import { useRecoilValue } from "recoil"
+import { settingsAtom } from "./TopBar"
 
 const SummaryContainer = styled.div`
     flex:1;
@@ -26,12 +26,13 @@ export default function SummerizedParagraphs(props) {
     const [gist, setGist] = useState("")
     const [hover, setHover] = useState(false)
     const [texts, setTexts] = useState([])
+    const settings = useRecoilValue(settingsAtom)
 
     const [working, setWorking] = useState(false)
 
     useEffect(() => {
-        if (props.apply && !text) getAction('new')
-    }, [props.apply])
+        if (settings.applyToAll && !text) getAction('new')
+    }, [settings.applyToAll])
 
     const getAction = async (action) => {
         if (working) return
@@ -42,10 +43,10 @@ export default function SummerizedParagraphs(props) {
             body: JSON.stringify({
                 current: text,
                 action,
-                text: props.paragraph.innerText,
+                text: props.text,
                 prev: props.prev,
                 next: props.next,
-                use4: props.use4,
+                use4: settings.use4,
             })
         })
 
@@ -85,21 +86,8 @@ export default function SummerizedParagraphs(props) {
         setText(texts[(index + 1) % texts.length])
     }
 
-
-    const element = props.paragraph
-    const elementStyle = window.getComputedStyle(element)
-    const fontSize = elementStyle.getPropertyValue('font-size').split('px')[0]
-    const lineHeight = elementStyle.getPropertyValue('line-height').split('px')[0]
-    const style = {
-        position: 'absolute',
-        top: element.offsetTop + props.topOffset,
-        left: props.offset,
-        fontSize: fontSize * 1.2 + 'px',
-        lineHeight: lineHeight * 1.2 + 'px',
-    }
-
     return (
-        <div style={style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        <div style={props.style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={{ display: 'flex', gap: '30px', width: '60vw' }}>
                 <SummaryContainer style={{ width: props.width }} >
                     {working ? <LoaderAnim /> : text}

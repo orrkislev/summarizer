@@ -3,41 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import SummerizedParagraphs from './SummerizedParagraph';
 import Cookies from 'js-cookie';
-
-
-const TopBar = styled.div`
-    z-index: 100;
-    position: fixed;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: .25em;
-    background: radial-gradient(circle at 10% 20%, #FE6B8B 30%, #FF8E53 90%), radial-gradient(circle at 90% 90%, #FF8E53 30%, #FE6B8B 90%);
-    border-bottom: 1px solid #ccc;
-    `
-
-const TopButtons = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1em;
-    `
-const TopButton = styled.div`
-    padding: .25em .5em;
-    cursor: pointer;
-    border-radius: 5px;
-    &:hover {
-        background: black;
-        color: white;
-    }
-    transition: all 0.1s ease-in-out;
-
-    ${props => props.active && `
-        background: #ffffff88;
-    }`}
-
-    `
+import TopBar from './TopBar';
+import EpubGPT from './EpubGPT';
 
 
 const ReaderContainer = styled.div`
@@ -49,15 +16,13 @@ const ReaderContainer = styled.div`
     `
 
 
-export default function NewReader(props) {
+export default function EpubReader(props) {
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
     const bookData = useRef(null);
     const [sectionData, setSectionData] = useState({
         paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
     })
-    const [use4, setUse4] = useState(true)
-    const [applyToAll, setApplyToAll] = useState(false)
 
     useEffect(() => {
         if (props.file) loadBook()
@@ -116,30 +81,23 @@ export default function NewReader(props) {
 
     return (
         <div>
-            <TopBar style={{ fontFamily: sectionData.font }}>
-                <TopButtons style={{ width: bookRef.current?.getBoundingClientRect().width }}>
-                    <TopButton onClick={prevPage}>prev</TopButton>
-                    {sectionData.label}
-                    <TopButton onClick={nextPage}>next</TopButton>
-                </TopButtons>
-                <TopButtons style={{ marginRight: '2em' }}>
-                    <TopButton active={use4} onClick={() => setUse4(!use4)}>{use4 ? 'GPT-4' : 'GPT-3.5'}</TopButton>
-                    <TopButton active={applyToAll} onClick={() => setApplyToAll(!applyToAll)}>{applyToAll ? 'Apply to all' : 'one by one'}</TopButton>
-                </TopButtons>
-            </TopBar>
+            <TopBar 
+                width={bookRef.current?.getBoundingClientRect().width}
+                fontFamily={sectionData.font}
+                label={sectionData.label}
+                prev={prevPage} next={nextPage}
+            />
 
             <div style={{ position: 'relative', display: 'flex', fontFamily: sectionData.font }}>
                 <ReaderContainer ref={bookRef} />
                 {sectionData.paragraphs.map((sp, index) => {
-                    return <SummerizedParagraphs key={index}
+                    return <EpubGPT key={index}
                         offset={sectionData.contentRight + sectionData.contentLeft}
                         width={sectionData.contentRight - sectionData.contentLeft}
                         topOffset={bookRef.current.getBoundingClientRect().top}
                         paragraph={sp.paragraph}
                         prev={sp.prevParagraphText}
                         next={sp.nextParagraphText}
-                        use4={use4}
-                        apply={applyToAll}
                     />
                 })}
             </div>

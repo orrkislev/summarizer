@@ -18,8 +18,10 @@
     "next": "^13.4.19",
     "openai": "^3.2.1",
     "openai-edge": "^1.2.2",
+    "pdfjs-dist": "^3.10.111",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "recoil": "^0.7.7",
     "styled-components": "^5.3.9",
     "use-fit-text": "^2.4.0"
   },

@@ -1,10 +1,12 @@
 'use client';
 
-import NewReader from '@/components/NewReader';
 import NoSsrWrapper from '@/components/NoSSRWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import PDFReader from './PdfReader';
+import { RecoilRoot } from 'recoil';
+import EpubReader from './EpubReader';
 
 
 const BG = styled(motion.div)`
@@ -32,33 +34,39 @@ const Card = styled.div`
 `
 
 export default function EpubPage() {
-  const [epubFile, setEpubFile] = useState(null)
+  const [bookFile, setBookFile] = useState(null)
   const [readyToRead, setReadyToRead] = useState(false);
 
   const handleFileUpload = (e) => {
-    setEpubFile(e.target.files[0]);
+    const file = e.target.files[0]
+    setBookFile(file);
   };
 
   const doneLoading = () => {
     setTimeout(() => setReadyToRead(true), 1000)
   }
 
+  const bookFormat = bookFile ? bookFile.name.split('.').pop().toLowerCase() : null
+
   return (
     <NoSsrWrapper>
-      <AnimatePresence>
-        {!readyToRead && (
-          <BG exit={{ height: 0 }} transition={{ duration: 0.5 }}>
-            {epubFile ?
-              <FakeWords />
-              :
-              <Card>
-                <FileUpload onChange={handleFileUpload} />
-              </Card>
-            }
-          </BG>
-        )}
-      </AnimatePresence>
-      {epubFile && <NewReader file={epubFile} doneLoading={doneLoading} />}
+        <AnimatePresence>
+          {!readyToRead && (
+            <BG exit={{ height: 0 }} transition={{ duration: 0.5 }}>
+              {bookFile ?
+                <FakeWords />
+                :
+                <Card>
+                  <FileUpload onChange={handleFileUpload} />
+                </Card>
+              }
+            </BG>
+          )}
+        </AnimatePresence>
+      <RecoilRoot>
+        {bookFormat == 'epub' && <EpubReader file={bookFile} doneLoading={doneLoading} />}
+        {bookFormat == 'pdf' && <PDFReader file={bookFile} doneLoading={doneLoading} />}
+      </RecoilRoot>
     </NoSsrWrapper>
   )
 }
@@ -145,9 +153,9 @@ function FileUpload(props) {
   return (
     <>
       <FileUploadLabel htmlFor="file-upload">
-        Upload .epub file
+        Upload file
       </FileUploadLabel>
-      <input style={{display:'none'}} id="file-upload" type="file" onChange={props.onChange} />
+      <input style={{ display: 'none' }} id="file-upload" type="file" onChange={props.onChange} />
     </>
   )
 }
