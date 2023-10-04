@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import * as PDFJS from 'pdfjs-dist/build/pdf';
 import TopBar from "./TopBar";
 import PdfGPT from "./PdfGPT";
+import Cookies from 'js-cookie';
 
 PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.min.js`;
 
@@ -17,12 +18,15 @@ export default function PDFReader(props) {
         PDFJS.getDocument(fileURl).promise.then((pdf) => {
             props.doneLoading()
             pdfRef.current = pdf
-            setPageNum(1)
+            const lastPage = Cookies.get('PDF_'+file.name+'_lastPage')
+            if (lastPage) setPageNum(parseInt(lastPage))
+            else setPageNum(1)
         })
     }, [props.file])
 
     useEffect(() => {
         if (pdfRef.current) {
+            Cookies.set('PDF_'+props.file.name+'_lastPage', pageNum)
             setParagraphs([])
             pdfRef.current.getPage(pageNum).then((page) => {
                 const canvas = canvasRef.current
