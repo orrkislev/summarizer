@@ -34,8 +34,6 @@ export async function POST(req) {
         prompt += `Summarize the paragraph above in more words.`
     }
 
-    console.log(prompt)
-
     const model = body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
 
     const completion = await openai.createChatCompletion({

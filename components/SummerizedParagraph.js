@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
 import styled from "styled-components"
 import { LoaderAnim } from "./Reader"
-import { getStreamWords } from "@/utils/StreamUtils"
+import { getStreamWords } from "@/utils/useStreamState"
 import { useRecoilValue } from "recoil"
 import { settingsAtom } from "./TopBar"
+import { useBookData } from "@/utils/firebaseConfig"
 
 const SummaryContainer = styled.div`
     flex:1;
@@ -17,11 +18,22 @@ const SideText = styled.div`
     color: royalblue;
     `
 
+const EmptyContainer = styled.div`
+    width: 100%;
+    height: ${props => props.height}px;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+    &:hover {
+        background-color: rgba(0,0,0,0.1);
+        // box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transform: translateY(-2px) scale(1.01);
+    }
+    `
+
 export default function SummerizedParagraphs(props) {
-    // const [text, getText, setText] = useStreamState("", newText => {
-    //     setTexts([...texts, newText])
-    // })
-    // const [gist, getGist, setGist] = useStreamState("")
+    const bookStore = useBookData()
     const [text, setText] = useState("")
     const [gist, setGist] = useState("")
     const [hover, setHover] = useState(false)
@@ -29,6 +41,18 @@ export default function SummerizedParagraphs(props) {
     const settings = useRecoilValue(settingsAtom)
 
     const [working, setWorking] = useState(false)
+
+    useEffect(() => {
+        if (bookStore.bookData.savedCloud) {
+            bookStore.getPageSummaried(props.paragraphNum).then(summaries => {
+                if (summaries.length > 0) {
+                    setTexts(summaries[0].summaries)
+                    setText(summaries[0].summaries[0])
+                    setGist(summaries[0].gist)
+                }
+            })
+        }
+    }, [bookStore.bookData])
 
     useEffect(() => {
         if (settings.applyToAll && !text) getAction('new')
@@ -52,7 +76,8 @@ export default function SummerizedParagraphs(props) {
 
         let streamText = ''
         let target
-        getStreamWords(res, 
+        let newGist = ''
+        getStreamWords(res,
             (word) => {
                 streamText += word
                 if (streamText.startsWith('TITLE:')) {
@@ -61,6 +86,7 @@ export default function SummerizedParagraphs(props) {
                 } else if (streamText.endsWith('SUMMARY:')) {
                     streamText = streamText.slice(0, -9)
                     setGist(streamText)
+                    newGist = streamText
                     setWorking(false)
                     target = 'summary'
                     streamText = ''
@@ -70,11 +96,9 @@ export default function SummerizedParagraphs(props) {
                 }
             },
             () => {
+                bookStore.saveSummary(props.paragraphNum, props.paragraphNum, [...texts, streamText], newGist)
                 setTexts([...texts, text])
             })
-
-        // getText(res)
-        // setWorking(false)
     }
 
     const lastText = () => {
@@ -89,25 +113,32 @@ export default function SummerizedParagraphs(props) {
     return (
         <div style={props.style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={{ display: 'flex', gap: '30px', width: '60vw' }}>
-                <SummaryContainer style={{ width: props.width }} >
-                    {working ? <LoaderAnim /> : text}
-                    <SummaryActions
-                        hover={hover}
-                        extended={text.length > 0 || gist.length > 0 || working}
-                        withArrows={texts.length > 1}
-                        get={() => getAction('new')}
-                        longer={() => getAction('longer')}
-                        shorter={() => getAction('shorter')}
-                        new={() => getAction('new')}
-                        lastText={lastText}
-                        nextText={nextText}
-                        currText={texts.length > 1 ? texts.indexOf(text) + 1 : 1}
-                        textsLength={texts.length}
-                    />
-                </SummaryContainer>
-                <SideText>
-                    {gist}
-                </SideText>
+                {text.length == 0 && !working ? (
+                    <EmptyContainer height={props.height} onClick={() => getAction('new')} />
+                ) : (
+                    <>
+                        <SummaryContainer style={{ width: props.width }} >
+                            {working ? <LoaderAnim /> : text}
+                            <SummaryActions
+                                hover={hover}
+                                extended={text.length > 0 || gist.length > 0 || working}
+                                withArrows={texts.length > 1}
+                                get={() => getAction('new')}
+                                longer={() => getAction('longer')}
+                                shorter={() => getAction('shorter')}
+                                new={() => getAction('new')}
+                                lastText={lastText}
+                                nextText={nextText}
+                                currText={texts.length > 1 ? texts.indexOf(text) + 1 : 1}
+                                textsLength={texts.length}
+                            />
+                            {/* )} */}
+                        </SummaryContainer>
+                        <SideText>
+                            {gist}
+                        </SideText>
+                    </>
+                )}
             </div>
         </div>
     )

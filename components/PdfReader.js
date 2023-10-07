@@ -3,10 +3,13 @@ import * as PDFJS from 'pdfjs-dist/build/pdf';
 import TopBar from "./TopBar";
 import PdfGPT from "./PdfGPT";
 import Cookies from 'js-cookie';
+import { useBookData } from "@/utils/firebaseConfig";
+
 
 PDFJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS.version}/pdf.worker.min.js`;
 
 export default function PDFReader(props) {
+    const bookStore = useBookData()
     const canvasRef = useRef(null)
     const pdfRef = useRef(null)
     const [pageNum, setPageNum] = useState(0)
@@ -15,11 +18,12 @@ export default function PDFReader(props) {
     useEffect(() => {
         const file = props.file
         const fileURl = URL.createObjectURL(file)
+        bookStore.setBook(file)
         PDFJS.getDocument(fileURl).promise.then((pdf) => {
             props.doneLoading()
             pdfRef.current = pdf
-            const lastPage = Cookies.get('PDF_'+file.name+'_lastPage')
-            if (lastPage) setPageNum(parseInt(lastPage))
+            const lastPage = parseInt(Cookies.get('PDF_'+file.name+'_lastPage'))
+            if (lastPage && lastPage < pdf.numPages) setPageNum(lastPage)
             else setPageNum(1)
         })
     }, [props.file])
@@ -38,6 +42,7 @@ export default function PDFReader(props) {
                 canvas.style.width = `${viewport.width * 1.5 / scale}px`;
 
                 page.getTextContent().then((textContent) => {
+
                     const normalHeight = page.getViewport({ scale: 1 }).height
                     textContent.items.forEach(item => {
                         item.transform[5] = 1 - item.transform[5] / normalHeight
@@ -46,11 +51,13 @@ export default function PDFReader(props) {
                     textContent.items = textContent.items.filter(item => item.str != '')
                     textContent.items = textContent.items.sort((a, b) => a.transform[5] - b.transform[5])
 
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         let blocks = getBlocks(textContent)
-                        blocks = blocks.filter(block => block.text.length > 50)
+                        let str = ''
+                        blocks.forEach(block => str += block.text + '\n')
+                        blocks = blocks.filter(block => block.text.split(' ').length > 50)
                         setParagraphs(blocks)
-                    }, 1000)
+                    }, 100)
                 })
 
                 page.render({
@@ -58,14 +65,20 @@ export default function PDFReader(props) {
                     viewport
                 })
             })
+            const keyFunc = (e) => {
+                if (e.key == 'ArrowRight') nextPage()
+                if (e.key == 'ArrowLeft') prevPage()
+            }
+            window.addEventListener('keydown', keyFunc)
+            return () => window.removeEventListener('keydown', keyFunc)
         }
     }, [pageNum])
 
     const nextPage = () => {
-        setPageNum(pageNum + 1)
+        if (pageNum < pdfRef.current.numPages) setPageNum(pageNum + 1)
     }
     const prevPage = () => {
-        setPageNum(pageNum - 1)
+        if (pageNum > 1) setPageNum(pageNum - 1)
     }
 
     const rightMost = paragraphs.reduce((acc, curr) => Math.max(acc, curr.right), 0) * 1.5
@@ -80,9 +93,12 @@ export default function PDFReader(props) {
             <canvas ref={canvasRef}></canvas>
             {paragraphs.map((sp, index) => (
                 <PdfGPT key={index}
+                    paragraphNum={index}
+                    pageNum={pageNum}
                     left={rightMost + 30}
                     width={(sp.right - sp.left) * 1.5}
                     top={sp.top - sp.lineheight * 1.5}
+                    height={(sp.bottom - sp.top)}
                     text={sp.text}
                     prev={sp.prevParagraphText}
                     next={sp.nextParagraphText}
@@ -124,9 +140,6 @@ function getBlocks(textContent) {
         right: line.reduce((acc, curr) => Math.max(acc, curr.transform[4] + curr.width), 0),
     }))
 
-    console.log([...lines])
-
-
     for (let i = 1; i < lines.length; i++) {
         const thisLine = lines[i]
         const prevLine = lines[i - 1]
@@ -149,7 +162,5 @@ function getBlocks(textContent) {
         lines[i].prevParagraphText = lines[i-1]?.text || ''
         lines[i].nextParagraphText = lines[i+1]?.text || ''
     }
-
-    console.log(lines)
     return lines
 }

@@ -96,7 +96,6 @@ export default function Reader(props) {
     const [scrollTo, setScrollTo] = useState(null)
 
     useEffect(() => {
-        console.log('scrollTo', scrollTo)
         if (scrollTo) {
             const cookie = document.cookie
             const cookieName = 'scrollTo'
@@ -117,7 +116,6 @@ export default function Reader(props) {
 
     useEffect(() => {
         if (props.filename) {
-            console.log(props.filename)
             const file = '/files/' + props.filename
             fetch(file)
                 .then(res => res.text())

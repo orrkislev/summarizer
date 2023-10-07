@@ -1,12 +1,13 @@
 'use client';
 
-import NoSsrWrapper from '@/components/NoSSRWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PDFReader from './PdfReader';
 import { RecoilRoot } from 'recoil';
 import EpubReader from './EpubReader';
+import SignIn from './SignIn';
+import { auth } from '@/utils/firebaseConfig';
 
 
 const BG = styled(motion.div)`
@@ -49,7 +50,7 @@ export default function EpubPage() {
   const bookFormat = bookFile ? bookFile.name.split('.').pop().toLowerCase() : null
 
   return (
-    <NoSsrWrapper>
+    <>
         <AnimatePresence>
           {!readyToRead && (
             <BG exit={{ height: 0 }} transition={{ duration: 0.5 }}>
@@ -63,11 +64,9 @@ export default function EpubPage() {
             </BG>
           )}
         </AnimatePresence>
-      <RecoilRoot>
         {bookFormat == 'epub' && <EpubReader file={bookFile} doneLoading={doneLoading} />}
         {bookFormat == 'pdf' && <PDFReader file={bookFile} doneLoading={doneLoading} />}
-      </RecoilRoot>
-    </NoSsrWrapper>
+    </>
   )
 }
 
@@ -155,7 +154,11 @@ function FileUpload(props) {
       <FileUploadLabel htmlFor="file-upload">
         Upload file
       </FileUploadLabel>
-      <input style={{ display: 'none' }} id="file-upload" type="file" onChange={props.onChange} />
+      <input style={{ display: 'none' }} 
+          id="file-upload" 
+          type="file" 
+          accept=".pdf,.epub" 
+          onChange={props.onChange}  />
     </>
   )
 }

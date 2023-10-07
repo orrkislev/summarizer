@@ -12,6 +12,7 @@
     "cheerio": "^1.0.0-rc.12",
     "epubjs": "^0.3.93",
     "eslint": "8.38.0",
+    "firebase": "^10.4.0",
     "framer-motion": "^10.16.1",
     "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",

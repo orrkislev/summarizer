@@ -166,7 +166,6 @@ function getSectionData(section, book) {
 
 function goToLastSection(book) {
     const lastSection = Cookies.get('lastSection')
-    console.log('looking for', lastSection)
     if (lastSection) {
         book.navigation.toc.forEach(t => {
             if (t.href == lastSection) book.rendition.display(t.href)
