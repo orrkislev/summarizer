@@ -43,7 +43,7 @@ export default function SummerizedParagraphs(props) {
     const [working, setWorking] = useState(false)
 
     useEffect(() => {
-        if (bookStore.bookData.savedCloud) {
+        if (bookStore.bookData?.savedCloud) {
             bookStore.getPageSummaried(props.paragraphNum).then(summaries => {
                 if (summaries.length > 0) {
                     setTexts(summaries[0].summaries)

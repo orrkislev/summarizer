@@ -36,6 +36,7 @@ export function useBookData(){
     }
 
     const saveSummary = async (pageNum, paragraphNum, summaries, gist) => {
+      console.log(`saving on ${pageNum} paragraph ${paragraphNum}`)
       if (!auth.currentUser) return
       const paragraphDoc = doc(store, `users/${auth.currentUser.uid}/books/${bookData.bookId}/page_${pageNum}/paragraph_${paragraphNum}`)
       await setDoc(paragraphDoc, {

@@ -1,7 +1,6 @@
 import epub from 'epubjs';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import SummerizedParagraphs from './SummerizedParagraph';
 import Cookies from 'js-cookie';
 import TopBar from './TopBar';
 import EpubGPT from './EpubGPT';
@@ -81,7 +80,7 @@ export default function EpubReader(props) {
 
     return (
         <div>
-            <TopBar 
+            <TopBar
                 width={bookRef.current?.getBoundingClientRect().width}
                 fontFamily={sectionData.font}
                 label={sectionData.label}
@@ -109,7 +108,7 @@ export default function EpubReader(props) {
 
 function getParagraphs() {
     const iframe = document.querySelector('iframe')
-    if (!iframe) return [];
+    if (!iframe) return [[], null];
 
     const paragraphsElements = iframe.contentDocument.body.querySelectorAll('p')
 

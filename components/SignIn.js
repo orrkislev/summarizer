@@ -28,11 +28,21 @@ export default function SignIn() {
             });
     }
 
-    if (!auth.currentUser) return (
+    const logout = () => {
+        auth.signOut().then(() => {
+            setLoggedIn(false)
+        }).catch((error) => {
+            console.error(error)
+        });
+    }
+
+    return (
         <div style={{position:'absolute', bottom:'1em', right:'1em'}}>
-            <button onClick={click}>Sign In With Google</button>
+            { auth.currentUser ? (
+                <button onClick={logout}>Sign Out</button>
+            ) : (
+                <button onClick={click}>Sign In With Google</button>
+            )} 
         </div>
     )
-
-    return null
 }
