@@ -14,6 +14,7 @@ export default function PDFReader(props) {
     const pdfRef = useRef(null)
     const [pageNum, setPageNum] = useState(0)
     const [paragraphs, setParagraphs] = useState([])
+    const [cloudData, setCloudData] = useState([])
 
     useEffect(() => {
         const file = props.file
@@ -65,6 +66,14 @@ export default function PDFReader(props) {
                     viewport
                 })
             })
+
+            if (bookStore.bookData?.savedCloud) {
+                bookStore.getPageSummaried(pageNum).then(cloudData => {
+                    console.log(cloudData)
+                    setCloudData(cloudData)
+                })
+            }
+
             const keyFunc = (e) => {
                 if (e.key == 'ArrowRight') nextPage()
                 if (e.key == 'ArrowLeft') prevPage()
@@ -102,6 +111,7 @@ export default function PDFReader(props) {
                     text={sp.text}
                     prev={sp.prevParagraphText}
                     next={sp.nextParagraphText}
+                    cloudData={index < cloudData.length ? cloudData[index] : null}
                 />
             ))}
         </div>

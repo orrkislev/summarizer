@@ -36,23 +36,21 @@ export default function SummerizedParagraphs(props) {
     const bookStore = useBookData()
     const [text, setText] = useState("")
     const [gist, setGist] = useState("")
-    const [hover, setHover] = useState(false)
     const [texts, setTexts] = useState([])
+    const [hover, setHover] = useState(false)
     const settings = useRecoilValue(settingsAtom)
 
     const [working, setWorking] = useState(false)
 
-    useEffect(() => {
-        if (bookStore.bookData?.savedCloud) {
-            bookStore.getPageSummaried(props.paragraphNum).then(summaries => {
-                if (summaries.length > 0) {
-                    setTexts(summaries[0].summaries)
-                    setText(summaries[0].summaries[0])
-                    setGist(summaries[0].gist)
-                }
-            })
+    useEffect(()=>{
+        if (props.cloudData){
+            setTexts(props.cloudData.summaries)
+            setText(props.cloudData.summaries[0])
+            setGist(props.cloudData.gist)
         }
-    }, [bookStore.bookData])
+    }, props.cloudData)
+
+
 
     useEffect(() => {
         if (settings.applyToAll && !text) getAction('new')
@@ -96,7 +94,7 @@ export default function SummerizedParagraphs(props) {
                 }
             },
             () => {
-                bookStore.saveSummary(props.paragraphNum, props.paragraphNum, [...texts, streamText], newGist)
+                bookStore.saveSummary(props.pageNum, props.paragraphNum, [...texts, streamText], newGist)
                 setTexts([...texts, text])
             })
     }

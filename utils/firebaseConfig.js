@@ -51,7 +51,9 @@ export function useBookData(){
       const pageDocs = await getDocs(pageCollection)
       let pageSummaries = []
       pageDocs.forEach(doc => {
-        pageSummaries.push(doc.data())
+        const docID = doc.id
+        const parNum = docID.split('_')[1]
+        pageSummaries[parNum] = doc.data()
       })
       return pageSummaries
     }
