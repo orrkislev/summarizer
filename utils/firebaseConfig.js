@@ -17,7 +17,7 @@ export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 const store = getFirestore(firebaseApp);
 
-export const bookAtom = atom({ key:'book', default: null })
+export const bookAtom = atom({ key:'book', default: {} })
 
 export function useBookData(){
     const [bookData, setBookData] = useRecoilState(bookAtom)
