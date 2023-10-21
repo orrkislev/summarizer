@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import TopBar from './TopBar';
 import EpubGPT from './EpubGPT';
+import { useBookData } from '@/utils/firebaseConfig';
 
 
 const ReaderContainer = styled.div`
@@ -16,11 +17,13 @@ const ReaderContainer = styled.div`
 
 
 export default function EpubReader(props) {
+    const bookStore = useBookData()
+    const [cloudData, setCloudData] = useState([])
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
     const bookData = useRef(null);
     const [sectionData, setSectionData] = useState({
-        paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
+        sectionNum:0, paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
     })
 
     useEffect(() => {
@@ -31,7 +34,15 @@ export default function EpubReader(props) {
         if (rendition) {
             rendition.on('relocated', (section) => {
                 setTimeout(() => {
-                    setSectionData(getSectionData(section, bookData.current))
+                    const newSectionData = getSectionData(section, bookData.current)
+                    setSectionData(newSectionData)
+
+                    if (bookStore.bookData?.savedCloud) {
+                        bookStore.getPageSummaried(newSectionData.sectionNum).then(cloudData => {
+                            setCloudData(cloudData)
+                        })
+                    }
+
                 }, 100)
             })
 
@@ -45,11 +56,8 @@ export default function EpubReader(props) {
     }, [rendition])
 
 
-
-
-
-
     const loadBook = async () => {
+        bookStore.setBook(props.file)
         const book = new epub(props.file);
         bookData.current = book;
         if (bookRef.current.innerHTML === "") {
@@ -91,12 +99,16 @@ export default function EpubReader(props) {
                 <ReaderContainer ref={bookRef} />
                 {sectionData.paragraphs.map((sp, index) => {
                     return <EpubGPT key={index}
+                        paragraphNum={index}
+                        pageNum={sectionData.sectionNum}
                         offset={sectionData.contentRight + sectionData.contentLeft}
                         width={sectionData.contentRight - sectionData.contentLeft}
+                        height={sp.paragraph.getBoundingClientRect().height}
                         topOffset={bookRef.current.getBoundingClientRect().top}
                         paragraph={sp.paragraph}
                         prev={sp.prevParagraphText}
                         next={sp.nextParagraphText}
+                        cloudData={index < cloudData.length ? cloudData[index] : null}
                     />
                 })}
             </div>
@@ -159,7 +171,9 @@ function getSectionData(section, book) {
     Cookies.set('lastSection', section.start.href)
     const label = loc ? loc.label : ''
 
-    return { paragraphs, contentLeft, contentRight, font, label }
+    const sectionNum = book.navigation.toc.findIndex(t => t.href == sectionURL)
+
+    return { sectionNum, paragraphs, contentLeft, contentRight, font, label }
 }
 
 
