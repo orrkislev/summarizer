@@ -10,7 +10,7 @@ export default function EpubGPT(props){
         top: element.offsetTop + props.topOffset,
         left: props.offset,
         fontSize: fontSize * 1.2 + 'px',
-        lineHeight: lineHeight * 1.2,
+        lineHeight: lineHeight * 1.2 + 'px',
     }
 
     return <SummerizedParagraphs 
