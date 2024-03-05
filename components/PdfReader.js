@@ -69,7 +69,6 @@ export default function PDFReader(props) {
 
             if (bookStore.bookData?.savedCloud) {
                 bookStore.getPageSummaried(pageNum).then(cloudData => {
-                    console.log(cloudData)
                     setCloudData(cloudData)
                 })
             }
@@ -161,7 +160,7 @@ function getBlocks(textContent) {
             prevLine.right = Math.max(prevLine.right, thisLine.right)
             lines.splice(i, 1)
             i--
-            if (thisLine.left < prevLine.left + 100 && thisLine.right < prevLine.right - 10) {
+            if (thisLine.left < prevLine.left + 100 && thisLine.right < prevLine.right - 100) {
                 prevLine.done = true
             }
         }

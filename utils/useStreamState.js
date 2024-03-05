@@ -26,6 +26,7 @@ export async function getStreamWords(fetchRes, onWord = () => { }, onDone = () =
         if (done) break;
 
         const txt = decoder.decode(value)
+        console.log('txt', txt)
         const txts = txt.split('\n').filter(t => t.length > 0).map(t => t.slice(6))
         if (lastPartlyJson) {
             txts[0] = lastPartlyJson + txts[0]

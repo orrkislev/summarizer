@@ -78,10 +78,10 @@ export default function SummerizedParagraphs(props) {
         getStreamWords(res,
             (word) => {
                 streamText += word
-                if (streamText.startsWith('TITLE:')) {
+                if (streamText.startsWith('TITLE:') || streamText.startsWith('Title:') || streamText.startsWith('title:')) {
                     target = 'gist'
                     streamText = ''
-                } else if (streamText.endsWith('SUMMARY:')) {
+                } else if (streamText.endsWith('SUMMARY:') || streamText.endsWith('Summary:') || streamText.endsWith('summary:')) {
                     streamText = streamText.slice(0, -9)
                     setGist(streamText)
                     newGist = streamText
@@ -111,9 +111,9 @@ export default function SummerizedParagraphs(props) {
     return (
         <div style={props.style} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             <div style={{ display: 'flex', gap: '30px', width: '60vw' }}>
-                {text.length == 0 && !working ? (
+                {/* {text.length == 0 && !working ? (
                     <EmptyContainer height={props.height} onClick={() => getAction('new')} />
-                ) : (
+                ) : ( */}
                     <>
                         <SummaryContainer style={{ width: props.width }} >
                             {working ? <LoaderAnim /> : text}
@@ -136,7 +136,7 @@ export default function SummerizedParagraphs(props) {
                             {gist}
                         </SideText>
                     </>
-                )}
+                {/* )} */}
             </div>
         </div>
     )

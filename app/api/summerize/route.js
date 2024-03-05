@@ -46,6 +46,8 @@ export async function POST(req) {
         ],
     });
 
+    console.log('completion', completion)
+
     return new Response(completion.body, {
         headers: {
             "Access-Control-Allow-Origin": "*",
