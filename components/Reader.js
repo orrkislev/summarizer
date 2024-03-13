@@ -1,3 +1,5 @@
+'use client';
+
 import MiniMap from "@/components/MiniMap";
 import useLazyLoad from "@/utils/useLazyLoad";
 import { useEffect, useRef, useState } from "react"
@@ -109,7 +111,9 @@ export default function Reader(props) {
         if (document.cookie) {
             const cookie = document.cookie
             const cookieName = 'scrollTo'
-            const cookieValue = cookie.split(';').find(row => row.startsWith(cookieName)).split('=')[1]
+            const cookieRow = cookie.split(';').find(row => row.startsWith(cookieName))
+            if (!cookieRow) return
+            cookieValue = cookieRow.split('=')[1]
             setTimeout(() => setScrollTo(parseInt(cookieValue)), 500)
         }
     }, [])
