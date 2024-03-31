@@ -37,7 +37,7 @@ const TopButton = styled.div`
 export const settingsAtom = atom({
     key: 'settings',
     default: {
-        use4: true,
+        model: 'claude',
         applyToAll: false,
     }
 })
@@ -45,8 +45,9 @@ export const settingsAtom = atom({
 export default function TopBar(props) {
     const [ settings,setSettings ] = useRecoilState(settingsAtom)
 
-    const clickUse4 = () => {
-        setSettings({...settings, use4: !settings.use4})
+    const clickModel = () => {
+        if (settings.model == 'claude') setSettings({...settings, model: 'gpt'})
+        else setSettings({...settings, model: 'claude'})
     }
     const clickApplyToAll = () => {
         setSettings({...settings, applyToAll: !settings.applyToAll})
@@ -60,8 +61,8 @@ export default function TopBar(props) {
                 <TopButton onClick={props.next}>next</TopButton>
             </TopButtons>
             <TopButtons style={{ marginRight: '2em' }}>
-                <TopButton active={settings.use4} onClick={clickUse4}>
-                    {settings.use4 ? 'GPT-4' : 'GPT-3.5'}
+                <TopButton active={settings.model == 'claude'} onClick={clickModel}>
+                    {settings.model == 'claude' ? 'Claude' : 'GPT'}
                 </TopButton>
                 <TopButton active={settings.applyToAll} onClick={clickApplyToAll}>
                     {settings.applyToAll ? 'Apply to all' : 'one by one'}

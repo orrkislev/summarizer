@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.19.1",
     "cheerio": "^1.0.0-rc.12",
     "epubjs": "^0.3.93",
     "eslint": "8.38.0",

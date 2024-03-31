@@ -42,8 +42,8 @@ export default function SummerizedParagraphs(props) {
 
     const [working, setWorking] = useState(false)
 
-    useEffect(()=>{
-        if (props.cloudData){
+    useEffect(() => {
+        if (props.cloudData) {
             setTexts(props.cloudData.summaries)
             setText(props.cloudData.summaries[0])
             setGist(props.cloudData.gist)
@@ -59,18 +59,22 @@ export default function SummerizedParagraphs(props) {
     const getAction = async (action) => {
         if (working) return
         setWorking(true)
-        const res = await fetch('/api/summerize', {
+
+        let url = '/api/summerize_claude'
+        if (settings.model == 'gpt') url = '/api/summerize_gpt'
+        const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                current: text,
-                action,
-                text: props.text,
-                prev: props.prev,
-                next: props.next,
-                use4: settings.use4,
-            })
+            body: JSON.stringify({ current: text, action, text: props.text, prev: props.prev, next: props.next })
         })
+
+        if (res.headers.get('content-type').includes('text/plain')) {
+            const resText = await res.text()
+            setText(resText.split('SUMMARY:')[1])
+            setGist(resText.split('SUMMARY:')[0].split('TITLE:')[1])
+            setWorking(false)
+            return
+        }
 
         let streamText = ''
         let target
@@ -78,7 +82,11 @@ export default function SummerizedParagraphs(props) {
         getStreamWords(res,
             (word) => {
                 streamText += word
-                if (streamText.startsWith('TITLE:') || streamText.startsWith('Title:') || streamText.startsWith('title:')) {
+                if (streamText.includes('TITLE:') && streamText.includes('SUMMARY:')) {
+                    console.log('got title and summary')
+                    setText(streamText.slice(streamText.indexOf('SUMMARY:') + 8))
+                    setGist(streamText.slice(6, streamText.indexOf('SUMMARY:')))
+                } if (streamText.startsWith('TITLE:') || streamText.startsWith('Title:') || streamText.startsWith('title:')) {
                     target = 'gist'
                     streamText = ''
                 } else if (streamText.endsWith('SUMMARY:') || streamText.endsWith('Summary:') || streamText.endsWith('summary:')) {
@@ -114,28 +122,28 @@ export default function SummerizedParagraphs(props) {
                 {/* {text.length == 0 && !working ? (
                     <EmptyContainer height={props.height} onClick={() => getAction('new')} />
                 ) : ( */}
-                    <>
-                        <SummaryContainer style={{ width: props.width }} >
-                            {working ? <LoaderAnim /> : text}
-                            <SummaryActions
-                                hover={hover}
-                                extended={text.length > 0 || gist.length > 0 || working}
-                                withArrows={texts.length > 1}
-                                get={() => getAction('new')}
-                                longer={() => getAction('longer')}
-                                shorter={() => getAction('shorter')}
-                                new={() => getAction('new')}
-                                lastText={lastText}
-                                nextText={nextText}
-                                currText={texts.length > 1 ? texts.indexOf(text) + 1 : 1}
-                                textsLength={texts.length}
-                            />
-                            {/* )} */}
-                        </SummaryContainer>
-                        <SideText>
-                            {gist}
-                        </SideText>
-                    </>
+                <>
+                    <SummaryContainer style={{ width: props.width }} >
+                        {working ? <LoaderAnim /> : text}
+                        <SummaryActions
+                            hover={hover}
+                            extended={text.length > 0 || gist.length > 0 || working}
+                            withArrows={texts.length > 1}
+                            get={() => getAction('new')}
+                            longer={() => getAction('longer')}
+                            shorter={() => getAction('shorter')}
+                            new={() => getAction('new')}
+                            lastText={lastText}
+                            nextText={nextText}
+                            currText={texts.length > 1 ? texts.indexOf(text) + 1 : 1}
+                            textsLength={texts.length}
+                        />
+                        {/* )} */}
+                    </SummaryContainer>
+                    <SideText>
+                        {gist}
+                    </SideText>
+                </>
                 {/* )} */}
             </div>
         </div>
