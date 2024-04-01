@@ -34,10 +34,9 @@ export async function POST(req) {
         prompt += `Summarize the paragraph above in more words.`
     }
 
-    const model = body.use4 ? 'gpt-4' : 'gpt-3.5-turbo'
 
     const completion = await openai.createChatCompletion({
-        model,
+        model:'gpt-4',
         stream: true,
         messages: [
             { role: "system", content: "You are a helpful assistant." },
