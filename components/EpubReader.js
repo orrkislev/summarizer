@@ -2,16 +2,16 @@ import epub from 'epubjs';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Cookies from 'js-cookie';
-import TopBar from './TopBar';
+import TopBar, { settingsAtom } from './TopBar';
 import EpubGPT from './EpubGPT';
 import { useBookData } from '@/utils/firebaseConfig';
+import { useRecoilState } from 'recoil';
 
 
 const ReaderContainer = styled.div`
-    margin-top: 3em;
     z-index: 1;
-    position: relative;
-    width: 35vw;
+    width: 45vw;
+    margin-top: 8em;
     margin-bottom: 5em;
     `
 
@@ -22,8 +22,9 @@ export default function EpubReader(props) {
     const [rendition, setRendition] = useState(null);
     const bookRef = useRef(null);
     const bookData = useRef(null);
+    const [settings, setSettings] = useRecoilState(settingsAtom)
     const [sectionData, setSectionData] = useState({
-        sectionNum:0, paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
+        sectionNum: 0, paragraphs: [], contentLeft: 0, contentRight: 0, font: '', label: ''
     })
 
     useEffect(() => {
@@ -35,6 +36,7 @@ export default function EpubReader(props) {
             rendition.on('relocated', (section) => {
                 setTimeout(() => {
                     const newSectionData = getSectionData(section, bookData.current)
+                    setSettings({ ...settings, title: newSectionData.name, sectionLabel: newSectionData.label })
                     setSectionData(newSectionData)
 
                     if (bookStore.bookData?.savedCloud) {
@@ -91,26 +93,25 @@ export default function EpubReader(props) {
             <TopBar
                 width={bookRef.current?.getBoundingClientRect().width}
                 fontFamily={sectionData.font}
-                label={sectionData.label}
                 prev={prevPage} next={nextPage}
             />
 
-            <div style={{ position: 'relative', display: 'flex', fontFamily: sectionData.font }}>
+            <div style={{ display: 'flex', flexDirection: 'column', fontFamily: sectionData.font, alignItems: 'center', justifyContent: 'center' }}>
                 <ReaderContainer ref={bookRef} />
-                {sectionData.paragraphs.map((sp, index) => {
-                    return <EpubGPT key={index}
-                        paragraphNum={index}
-                        pageNum={sectionData.sectionNum}
-                        offset={sectionData.contentRight + sectionData.contentLeft}
-                        width={sectionData.contentRight - sectionData.contentLeft}
-                        height={sp.paragraph.getBoundingClientRect().height}
-                        topOffset={bookRef.current.getBoundingClientRect().top}
-                        paragraph={sp.paragraph}
-                        prev={sp.prevParagraphText}
-                        next={sp.nextParagraphText}
-                        cloudData={index < cloudData.length ? cloudData[index] : null}
-                    />
-                })}
+                <div style={{width: bookRef.current?.getBoundingClientRect().width}}>
+                    {sectionData.paragraphs.map((sp, index) => {
+                        return <EpubGPT key={index}
+                            paragraphNum={index}
+                            width={bookRef.current?.getBoundingClientRect().width}
+                            pageNum={sectionData.sectionNum}
+                            topOffset={bookRef.current.getBoundingClientRect().top}
+                            paragraph={sp.paragraph}
+                            prev={sp.prevParagraphText}
+                            next={sp.nextParagraphText}
+                            cloudData={index < cloudData.length ? cloudData[index] : null}
+                        />
+                    })}
+                </div>
             </div>
         </div>
     );
@@ -171,9 +172,12 @@ function getSectionData(section, book) {
     Cookies.set('lastSection', section.start.href)
     const label = loc ? loc.label : ''
 
+    // ------------------ get book name ------------------
+    const name = book.package.metadata.title
+
     const sectionNum = book.navigation.toc.findIndex(t => t.href == sectionURL)
 
-    return { sectionNum, paragraphs, contentLeft, contentRight, font, label }
+    return { sectionNum, paragraphs, contentLeft, contentRight, font, label, name }
 }
 
 

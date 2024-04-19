@@ -4,10 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PDFReader from './PdfReader';
-import { RecoilRoot } from 'recoil';
 import EpubReader from './EpubReader';
-import SignIn from './SignIn';
-import { auth } from '@/utils/firebaseConfig';
 
 
 const BG = styled(motion.div)`
@@ -16,22 +13,8 @@ const BG = styled(motion.div)`
   align-items: center;
   height: 100vh;
   width:100vw;
-  background: radial-gradient(circle at 10% 20%, #FE6B8B 30%, #FF8E53 90%), radial-gradient(circle at 90% 90%, #FF8E53 30%, #FE6B8B 90%);
+  background: #EDEDEFCC;
   overflow: hidden;
-`
-
-const Card = styled.div`
-  background-color: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-  transition: 0.2s ease-in-out;
-  z-index: 2;
-
-  &:hover {
-    transform: perspective(500px) rotateX(10deg) scale(1.1);
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  }
 `
 
 export default function EpubPage() {
@@ -53,13 +36,11 @@ export default function EpubPage() {
     <>
         <AnimatePresence>
           {!readyToRead && (
-            <BG exit={{ height: 0 }} transition={{ duration: 0.5 }}>
+            <BG>
               {bookFile ?
                 <FakeWords />
                 :
-                <Card>
-                  <FileUpload onChange={handleFileUpload} />
-                </Card>
+                <FileUpload onChange={handleFileUpload} />
               }
             </BG>
           )}
@@ -133,17 +114,15 @@ function FakeWords() {
 
 const FileUploadLabel = styled.label`
     cursor: pointer;
-    padding: 0.5em 1em;
-    border-radius: 5px;
-    font-family: 'CrimsonText', serif;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: crimson;
-    border: 2px solid crimson;
-    transition: all 0.1s ease-in-out;
+    padding: 0.5em 2em;
+    border-radius: 999px;
+    font-family: 'Georgia', serif;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    background: #604CDD;
+
     &:hover {
-      background-color: crimson;
-      color: white;
+      background: #4A3AB9;
     }
   `;
 

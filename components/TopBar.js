@@ -1,16 +1,35 @@
 import { atom, useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-const TopBarDiv = styled.div`
-    z-index: 100;
+const TopBarContainer = styled.div`
+    z-index: 1000;
     position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5em;
+    width: 100%;
+    `
+
+const TopBar1 = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    padding: 1em;
+    background: white;
+    border-bottom: 1px solid #604CDD;
+    `
+
+const TopBar2 = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
     padding: .25em;
-    background: radial-gradient(circle at 10% 20%, #FE6B8B 30%, #FF8E53 90%), radial-gradient(circle at 90% 90%, #FF8E53 30%, #FE6B8B 90%);
-    border-bottom: 1px solid #ccc;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
     `
 
 const TopButtons = styled.div`
@@ -38,36 +57,47 @@ export const settingsAtom = atom({
     key: 'settings',
     default: {
         model: 'claude',
+        title: 'SKIM.ING',
+        sectionLabel:'',
         applyToAll: false,
     }
 })
 
 export default function TopBar(props) {
-    const [ settings,setSettings ] = useRecoilState(settingsAtom)
+    const [settings, setSettings] = useRecoilState(settingsAtom)
 
     const clickModel = () => {
-        if (settings.model == 'claude') setSettings({...settings, model: 'gpt'})
-        else setSettings({...settings, model: 'claude'})
+        if (settings.model == 'claude') setSettings({ ...settings, model: 'gpt' })
+        else setSettings({ ...settings, model: 'claude' })
     }
     const clickApplyToAll = () => {
-        setSettings({...settings, applyToAll: !settings.applyToAll})
+        setSettings({ ...settings, applyToAll: !settings.applyToAll })
     }
 
     return (
-        <TopBarDiv style={{ fontFamily: props.fontFamily }}>
-            <TopButtons style={{ width: props.width }}>
-                <TopButton onClick={props.prev}>prev</TopButton>
-                {props.label}
-                <TopButton onClick={props.next}>next</TopButton>
-            </TopButtons>
-            <TopButtons style={{ marginRight: '2em' }}>
-                <TopButton active={settings.model == 'claude'} onClick={clickModel}>
-                    {settings.model == 'claude' ? 'Claude' : 'GPT'}
-                </TopButton>
-                <TopButton active={settings.applyToAll} onClick={clickApplyToAll}>
-                    {settings.applyToAll ? 'Apply to all' : 'one by one'}
-                </TopButton>
-            </TopButtons>
-        </TopBarDiv>
+        <TopBarContainer>
+            <TopBar1 style={{ fontFamily: props.fontFamily }}>
+                <div></div>
+                <div>{settings.title}</div>
+                <div></div>
+            </TopBar1>
+
+            <TopBar2>
+                <div></div>
+                <TopButtons style={{ width: props.width }}>
+                    <TopButton onClick={props.prev}>prev</TopButton>
+                    {settings.sectionLabel}
+                    <TopButton onClick={props.next}>next</TopButton>
+                </TopButtons>
+                <TopButtons style={{ marginRight: '2em' }}>
+                    <TopButton active={settings.model == 'claude'} onClick={clickModel}>
+                        {settings.model == 'claude' ? 'Claude' : 'GPT'}
+                    </TopButton>
+                    <TopButton active={settings.applyToAll} onClick={clickApplyToAll}>
+                        {settings.applyToAll ? 'Apply to all' : 'one by one'}
+                    </TopButton>
+                </TopButtons>
+            </TopBar2>
+        </TopBarContainer>
     )
 }
