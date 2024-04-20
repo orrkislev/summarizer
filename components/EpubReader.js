@@ -98,12 +98,14 @@ export default function EpubReader(props) {
 
             <div style={{ display: 'flex', flexDirection: 'column', fontFamily: sectionData.font, alignItems: 'center', justifyContent: 'center' }}>
                 <ReaderContainer ref={bookRef} />
-                <div style={{width: bookRef.current?.getBoundingClientRect().width}}>
+                <div>
                     {sectionData.paragraphs.map((sp, index) => {
                         return <EpubGPT key={index}
                             paragraphNum={index}
-                            width={bookRef.current?.getBoundingClientRect().width}
+                            // width={bookRef.current?.getBoundingClientRect().width}
+                            width = {sectionData.contentRight - sectionData.contentLeft}
                             pageNum={sectionData.sectionNum}
+                            left={sectionData.contentLeft + bookRef.current.getBoundingClientRect().left}
                             topOffset={bookRef.current.getBoundingClientRect().top}
                             paragraph={sp.paragraph}
                             prev={sp.prevParagraphText}

@@ -9,10 +9,17 @@ import { useBookData } from "@/utils/firebaseConfig"
 const ParagraphOverlay = styled.div`
     z-index: 100;
     position: absolute;
-    background: ${props => props.show ? (props.fullShow ? 'rgb(246, 246, 254)' : 'rgba(246, 246, 254, .8)') : 'transparent'};
+    ${props => props.show && `
+        background: rgba(246, 246, 254, .85);
+    `}
+    ${props => props.fullShow && `
+        background: rgba(246, 246, 254, .85);
+        box-shadow: 0px 0px 10px 5px white inset;
+        backdrop-filter: blur(2px);
+    `}
     border-radius: 4px;
     transition: all 0.2s ease-in-out;
-    `
+`;
 
 const SkimButton = styled.div`
     cursor: pointer;

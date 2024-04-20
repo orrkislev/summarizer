@@ -10,7 +10,8 @@ export default function EpubGPT(props){
         position: 'absolute',
         top: element.offsetTop + props.topOffset,
         height: element.offsetHeight,
-        width: props.width,
+        width: props.width + 20,
+        left:props.left - 10,
         fontSize: fontSize * 1.2 + 'px',
         lineHeight: lineHeight * 1.2 + 'px',
     }
